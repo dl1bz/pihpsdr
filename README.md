@@ -1,5 +1,7 @@
 # pihpsdr
 
+This is a modified version by DL1BZ of pihpsdr from https://github.com/dl1ycf/pihpsdr with activated CFC
+
 **If you encounter problems with "pulling", look at this:** https://github.com/dl1ycf/pihpsdr/releases/download/v2.3/RenewRepo.pdf
 
 
