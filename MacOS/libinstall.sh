@@ -149,14 +149,16 @@ $BREW install python-setuptools
 # is always compiled from the sources).
 #
 $BREW reinstall soapysdr
-$BREW reinstall pothosware/pothos/soapyplutosdr
-$BREW reinstall pothosware/pothos/limesuite
-$BREW reinstall pothosware/pothos/soapyrtlsdr
-$BREW reinstall pothosware/pothos/soapyairspy
-$BREW reinstall pothosware/pothos/soapyairspyhf
-$BREW reinstall pothosware/pothos/soapyhackrf
-$BREW reinstall pothosware/pothos/soapyredpitaya
-$BREW reinstall pothosware/pothos/soapyrtlsdr
+
+# the following casks doesn't exist anymore -> comment out
+# $BREW reinstall pothosware/pothos/soapyplutosdr
+# $BREW reinstall pothosware/pothos/limesuite
+# $BREW reinstall pothosware/pothos/soapyrtlsdr
+# $BREW reinstall pothosware/pothos/soapyairspy
+# $BREW reinstall pothosware/pothos/soapyairspyhf
+# $BREW reinstall pothosware/pothos/soapyhackrf
+# $BREW reinstall pothosware/pothos/soapyredpitaya
+# $BREW reinstall pothosware/pothos/soapyrtlsdr
 
 ################################################################
 #
