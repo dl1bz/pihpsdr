@@ -1,6 +1,6 @@
 # pihpsdr
 
-**This is a modified version by DL1BZ of pihpsdr from https://github.com/dl1ycf/pihpsdr with activated CFC and optimization for macOS
+This is a modified version by DL1BZ of pihpsdr from https://github.com/dl1ycf/pihpsdr with activated CFC and optimization for macOS
 
 ***
 
