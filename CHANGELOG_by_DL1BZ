@@ -1,0 +1,5 @@
+- add CFC and set it active as hard-coded patch in the transmitter.c, all values adapted from my Thetis
+- change Limiter level from 6db to 15db
+- change EXIT program dialog and remove "reboot" and "shutdown" if piHPSDR running with macOS
+- add own CHANGES file
+- create new branch pihpsdr-cfc from the master branch
