@@ -1963,7 +1963,7 @@ void tx_set_compressor(const TRANSMITTER *tx) {
   SetTXALevelerSt(tx->id, tx->compressor);
   SetTXALevelerAttack(tx->id, 1);
   SetTXALevelerDecay(tx->id, 500);
-  SetTXALevelerTop(tx->id, 6.0);
+  SetTXALevelerTop(tx->id, 15.0); // set leveler new to 15.0db, was 6.0db (changed by DL1BZ)
 }
 
 void tx_set_ctcss(const TRANSMITTER *tx) {
@@ -2007,9 +2007,40 @@ void tx_set_deviation(const TRANSMITTER *tx) {
 }
 
 void tx_set_equalizer(TRANSMITTER *tx) {
+  /*
+     Patch by DL1BZ: Using CFC too
+  */
+  // define the 10 freq for the CFC multiband compressor
+  double cfcfreq[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
+  // define gain in db per freq as pre-compressor
+  // double cfclevel[10] = { 0, 0, 0, 3, 3, 6, 9, 9, 9, 9 };
+  double cfclevel[10] = { 0, 0, 3, 3, 3, 6, 6, 6, 9, 9 };
+  // define gain in db per freq as post-compressor
+  double cfcpostlevel[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  // define pre-amp level in db for pre-compressor
+  double cfcprecomp = 3;
+  // define post-amp level in db for post-compressor
+  double cfcpostcomp = -9;
+  // we need to set a pointer per array
+  double* pCFCFREQ = cfcfreq;
+  double* pCFCLEVEL = cfclevel;
+  double* pCFCPOSTLEVEL = cfcpostlevel;
   int nfreq = tx->eq_tenband ? 10 : 4;
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
+  // load profile in the CFC
+  SetTXACFCOMPprofile(tx->id, 10, pCFCFREQ, pCFCLEVEL, pCFCPOSTLEVEL);
+  // set pre-amp level in db of CFC
+  SetTXACFCOMPPrecomp(tx->id, cfcprecomp);
+  // set post-amp level in db of CFC
+  SetTXACFCOMPPrePeq(tx->id, cfcpostcomp);
   SetTXAEQRun(tx->id, tx->eq_enable);
+  t_print("%s: set TX-EQ with Gain=%.1fdb\n", __FUNCTION__, tx->eq_gain);
+  // fire up the CFC pre-compressor
+  SetTXACFCOMPRun(tx->id, tx->eq_enable);
+  // fire up the CFC post-compressor
+  SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
+  // write to log (with 1 decimal places %f -> %.1f)
+  t_print("%s: set CFC with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, cfcprecomp, cfcpostcomp);
 }
 
 void tx_set_fft_size(const TRANSMITTER *tx) {
