@@ -2035,7 +2035,7 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   */
   #ifdef USE_CFC
     // define 10 EQ freq for the CFC multiband compressor
-    double CFC_preEQ_bands[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
+    double CFC_EQ_tenbands[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
     // define gain in db per EQ band as pre-compressor
     // double CFC_preEQ_Level[10] = { 0, 0, 0, 3, 3, 6, 9, 9, 9, 9 }; // similiar to my Thetis
     double CFC_preEQ_Level[10] = { 0, 0, 3, 3, 3, 6, 6, 6, 9, 9 }; // some correction for used mic with Mac
@@ -2046,7 +2046,7 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     // define post-amp level in db for post-compressor
     double CFC_postGain = -9;
     // we need to set a pointer per array
-    double* pCFC_preEQ_bands = CFC_preEQ_bands;
+    double* pCFC_EQ_tenbands = CFC_EQ_tenbands;
     double* pCFC_preEQ_Level = CFC_preEQ_Level;
     double* pCFC_postEQ_Level = CFC_postEQ_Level;
   #endif
@@ -2054,7 +2054,7 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
   #ifdef USE_CFC
     // load profile in the CFC
-    SetTXACFCOMPprofile(tx->id, 10, pCFC_preEQ_bands, pCFC_preEQ_Level, pCFC_postEQ_Level);
+    SetTXACFCOMPprofile(tx->id, 10, pCFC_EQ_tenbands, pCFC_preEQ_Level, pCFC_postEQ_Level);
     // set pre-amp level in db of CFC
     SetTXACFCOMPPrecomp(tx->id, CFC_preGain);
     // set post-amp level in db of CFC
