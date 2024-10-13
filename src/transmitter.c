@@ -59,6 +59,7 @@
 
 #define min(x,y) (x<y?x:y)
 #define max(x,y) (x<y?y:x)
+#define USE_CFC
 
 //
 // CW pulses are timed by the heart-beat of the mic samples.
@@ -2008,39 +2009,45 @@ void tx_set_deviation(const TRANSMITTER *tx) {
 
 void tx_set_equalizer(TRANSMITTER *tx) {
   /*
-     Patch by DL1BZ: Using CFC too
+     Patch by DL1BZ: Using the CFC from WDSP lib in piHPSDR
   */
-  // define the 10 freq for the CFC multiband compressor
-  double cfcfreq[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
-  // define gain in db per freq as pre-compressor
-  // double cfclevel[10] = { 0, 0, 0, 3, 3, 6, 9, 9, 9, 9 };
-  double cfclevel[10] = { 0, 0, 3, 3, 3, 6, 6, 6, 9, 9 };
-  // define gain in db per freq as post-compressor
-  double cfcpostlevel[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-  // define pre-amp level in db for pre-compressor
-  double cfcprecomp = 3;
-  // define post-amp level in db for post-compressor
-  double cfcpostcomp = -9;
-  // we need to set a pointer per array
-  double* pCFCFREQ = cfcfreq;
-  double* pCFCLEVEL = cfclevel;
-  double* pCFCPOSTLEVEL = cfcpostlevel;
+  #ifdef USE_CFC
+    // define 10 EQ freq for the CFC multiband compressor
+    double CFC_preEQ_bands[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
+    // define gain in db per EQ band as pre-compressor
+    // double CFC_preEQ_Level[10] = { 0, 0, 0, 3, 3, 6, 9, 9, 9, 9 }; // similiar to my Thetis
+    double CFC_preEQ_Level[10] = { 0, 0, 3, 3, 3, 6, 6, 6, 9, 9 }; // some correction for used mic with Mac
+    // define gain in db per freq as post-compressor
+    double CFC_postEQ_Level[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    // define pre-amp level in db for pre-compressor
+    double CFC_preGain = 3;
+    // define post-amp level in db for post-compressor
+    double CFC_postGain = -9;
+    // we need to set a pointer per array
+    double* pCFC_preEQ_bands = CFC_preEQ_bands;
+    double* pCFC_preEQ_Level = CFC_preEQ_Level;
+    double* pCFC_postEQ_Level = CFC_postEQ_Level;
+  #endif
   int nfreq = tx->eq_tenband ? 10 : 4;
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
-  // load profile in the CFC
-  SetTXACFCOMPprofile(tx->id, 10, pCFCFREQ, pCFCLEVEL, pCFCPOSTLEVEL);
-  // set pre-amp level in db of CFC
-  SetTXACFCOMPPrecomp(tx->id, cfcprecomp);
-  // set post-amp level in db of CFC
-  SetTXACFCOMPPrePeq(tx->id, cfcpostcomp);
+  #ifdef USE_CFC
+    // load profile in the CFC
+    SetTXACFCOMPprofile(tx->id, 10, pCFC_preEQ_bands, pCFC_preEQ_Level, pCFC_postEQ_Level);
+    // set pre-amp level in db of CFC
+    SetTXACFCOMPPrecomp(tx->id, CFC_preGain);
+    // set post-amp level in db of CFC
+    SetTXACFCOMPPrePeq(tx->id, CFC_postGain);
+  #endif
   SetTXAEQRun(tx->id, tx->eq_enable);
   t_print("%s: set TX-EQ with Gain=%.1fdb\n", __FUNCTION__, tx->eq_gain);
-  // fire up the CFC pre-compressor
-  SetTXACFCOMPRun(tx->id, tx->eq_enable);
-  // fire up the CFC post-compressor
-  SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
-  // write to log (with 1 decimal places %f -> %.1f)
-  t_print("%s: set CFC with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, cfcprecomp, cfcpostcomp);
+  #ifdef USE_CFC
+    // fire up the CFC pre-compressor
+    SetTXACFCOMPRun(tx->id, tx->eq_enable);
+    // fire up the CFC post-compressor
+    SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
+    // write to log (with 1 decimal places %f -> %.1f)
+    t_print("%s: set CFC with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, CFC_preGain, CFC_postGain);
+  #endif
 }
 
 void tx_set_fft_size(const TRANSMITTER *tx) {
