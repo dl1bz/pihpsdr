@@ -1,5 +1,13 @@
+- add constant #include USE_CFC, need to set at begin of transmitter.c if you want use the CFC option
+- add comments to my additional settings for CFC and add more debug output for checking the used values in TX-EQ,
+  CFC, Leveler and Baseband-Compressor in the STDOUT file
 - add CFC and set it active as hard-coded patch in the transmitter.c, all values adapted from my Thetis
-- change Limiter level from 6db to 15db
+- change Limiter level from 6db to 15db if using CFC, can be adjusted by yourself
+- cleanup the MacOS/libinstall.sh for macOS, because the Pothosware SOAPY modules don't exist anymore as casks
+  in Homebrew for macOS (known issue, all modules con't compile with macOS 14.x)
 - change EXIT program dialog and remove "reboot" and "shutdown" if piHPSDR running with macOS
-- add own CHANGES file
-- create new branch pihpsdr-cfc from the master branch
+- add own CHANGES file CHANGELOG_by_DL1BZ
+- create new branch pihpsdr-cfc from the master branch, which I had forking from https://github.com/dl1ycf/pihpsdr
+
+73 Heiko, DL1BZ
+My Blog https://hamradio.bzsax.de (German language only, sri)
