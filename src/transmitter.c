@@ -1958,13 +1958,26 @@ void tx_set_compressor(const TRANSMITTER *tx) {
   // 0 dB, therefore, the auto-leveler is also automatically
   // activated when en/dis-abling the compressor(de-)
   //
+  
+  // baseband compressor means speech processor in WDSP
+  SetTXACompressorGain(tx->id, tx->compressor_level); // define in TX menu
+  SetTXACompressorRun(tx->id, tx->compressor); // ON=1 or OFF=0, tick Compression ON/OFF in TX menu
+  t_print("%s: Compressor state %d with level %.1fdb\n", __FUNCTION__, tx->compressor, tx->compressor_level);
+  
+  // CESSB handling
+  if (tx->compressor == 1) { 
+   SetTXAosctrlRun(tx->id, tx->compressor);
+   t_print("%s: CESSB state ON\n", __FUNCTION__);
+  } else {
+   SetTXAosctrlRun(tx->id, 0);
+   t_print("%s: CESSB state OFF, because CESSB can be used if Compressor is ON\n", __FUNCTION__);
+  }
+  
+  // leveler
   double Leveler_MaxGain = 6.0; // in db
   int Leveler_Attack = 1; // in ms
   int Leveler_Decay = 500; // in ms
-  
-  SetTXACompressorRun(tx->id, tx->compressor);
-  SetTXACompressorGain(tx->id, tx->compressor_level);
-  SetTXAosctrlRun(tx->id, tx->compressor);
+
   SetTXALevelerSt(tx->id, tx->compressor);
   SetTXALevelerAttack(tx->id, Leveler_Attack);
   SetTXALevelerDecay(tx->id, Leveler_Decay);
@@ -1972,7 +1985,8 @@ void tx_set_compressor(const TRANSMITTER *tx) {
     Leveler_MaxGain = 15.0;
   #endif
   SetTXALevelerTop(tx->id, Leveler_MaxGain); // set Leveler MaxGain
-  t_print("%s: set Leveler with MaxGain %.1fdb, Attack %dms, Decay %dms\n", __FUNCTION__, Leveler_MaxGain, Leveler_Attack, Leveler_Decay);
+  SetTXALevelerSt(tx->id, tx->compressor);   // fire up Leveler in conjunktion with the baseband compressor
+  t_print("%s: Leveler state %d with MaxGain %.1fdb, Attack %dms, Decay %dms\n", __FUNCTION__, tx->compressor, Leveler_MaxGain, Leveler_Attack, Leveler_Decay);
 }
 
 void tx_set_ctcss(const TRANSMITTER *tx) {
@@ -2047,14 +2061,14 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     SetTXACFCOMPPrePeq(tx->id, CFC_postGain);
   #endif
   SetTXAEQRun(tx->id, tx->eq_enable);
-  t_print("%s: set TX-EQ with Gain=%.1fdb\n", __FUNCTION__, tx->eq_gain);
+  t_print("%s: TX-EQ state %d with Gain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain);
   #ifdef USE_CFC
     // fire up the CFC pre-compressor
     SetTXACFCOMPRun(tx->id, tx->eq_enable);
     // fire up the CFC post-compressor
     SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
     // write to log (with 1 decimal places %f -> %.1f)
-    t_print("%s: set CFC with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, CFC_preGain, CFC_postGain);
+    t_print("%s: CFC state %d with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->eq_enable, CFC_preGain, CFC_postGain);
   #endif
 }
 
