@@ -1958,13 +1958,21 @@ void tx_set_compressor(const TRANSMITTER *tx) {
   // 0 dB, therefore, the auto-leveler is also automatically
   // activated when en/dis-abling the compressor(de-)
   //
+  double Leveler_MaxGain = 6.0; // in db
+  int Leveler_Attack = 1; // in ms
+  int Leveler_Decay = 500; // in ms
+  
   SetTXACompressorRun(tx->id, tx->compressor);
   SetTXACompressorGain(tx->id, tx->compressor_level);
   SetTXAosctrlRun(tx->id, tx->compressor);
   SetTXALevelerSt(tx->id, tx->compressor);
-  SetTXALevelerAttack(tx->id, 1);
-  SetTXALevelerDecay(tx->id, 500);
-  SetTXALevelerTop(tx->id, 15.0); // set leveler new to 15.0db, was 6.0db (changed by DL1BZ)
+  SetTXALevelerAttack(tx->id, Leveler_Attack);
+  SetTXALevelerDecay(tx->id, Leveler_Decay);
+  #if defined (USE_CFC)
+    Leveler_MaxGain = 15.0;
+  #endif
+  SetTXALevelerTop(tx->id, Leveler_MaxGain); // set Leveler MaxGain
+  t_print("%s: set Leveler with MaxGain %.1fdb, Attack %dms, Decay %dms\n", __FUNCTION__, Leveler_MaxGain, Leveler_Attack, Leveler_Decay);
 }
 
 void tx_set_ctcss(const TRANSMITTER *tx) {
