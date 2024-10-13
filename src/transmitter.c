@@ -2050,8 +2050,10 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     double* pCFC_preEQ_Level = CFC_preEQ_Level;
     double* pCFC_postEQ_Level = CFC_postEQ_Level;
   #endif
+
   int nfreq = tx->eq_tenband ? 10 : 4;
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
+  
   #ifdef USE_CFC
     // load profile in the CFC
     SetTXACFCOMPprofile(tx->id, 10, pCFC_EQ_tenbands, pCFC_preEQ_Level, pCFC_postEQ_Level);
@@ -2060,14 +2062,23 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     // set post-amp level in db of CFC
     SetTXACFCOMPPrePeq(tx->id, CFC_postGain);
   #endif
+
   SetTXAEQRun(tx->id, tx->eq_enable);
-  t_print("%s: TX-EQ state %d with Gain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain);
+  t_print("%s: nfreq=%d, EQ bands: %lu\n", __FUNCTION__, nfreq, sizeof(tx->eq_freq) / sizeof(tx->eq_freq[0]));
+  for (int i = 1; i < 11; i++) {
+      t_print("%s: EQ[%d] setting %.1fHz with gain %.1f\n", __FUNCTION__, i, tx->eq_freq[i], tx->eq_gain[i]);
+  }
+  t_print("%s: TX-EQ state %d with Gain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain[0]);
   #ifdef USE_CFC
     // fire up the CFC pre-compressor
     SetTXACFCOMPRun(tx->id, tx->eq_enable);
     // fire up the CFC post-compressor
     SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
     // write to log (with 1 decimal places %f -> %.1f)
+    t_print("%s: number of CFC-EQ bands: %lu\n", __FUNCTION__, sizeof(CFC_EQ_tenbands) / sizeof(CFC_EQ_tenbands[0]));
+    for (int i = 0; i < 10; i++) {
+      t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, CFC_EQ_tenbands[i], CFC_preEQ_Level[i], CFC_postEQ_Level[i]);
+    }
     t_print("%s: CFC state %d with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->eq_enable, CFC_preGain, CFC_postGain);
   #endif
 }
