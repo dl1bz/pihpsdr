@@ -1978,7 +1978,6 @@ void tx_set_compressor(const TRANSMITTER *tx) {
   int Leveler_Attack = 1; // in ms
   int Leveler_Decay = 500; // in ms
 
-  SetTXALevelerSt(tx->id, tx->compressor);
   SetTXALevelerAttack(tx->id, Leveler_Attack);
   SetTXALevelerDecay(tx->id, Leveler_Decay);
   #if defined (USE_CFC)
@@ -2033,6 +2032,9 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   /*
      Patch by DL1BZ: Using the CFC from WDSP lib in piHPSDR
   */
+ 
+  // CFC can only be used if USE_CFC defined as constant at begin og this file
+  // the TX-EQ function is not affected, but the CFC runs only if TX-EQ is active
   #ifdef USE_CFC
     // define 10 EQ freq for the CFC multiband compressor
     double CFC_EQ_tenbands[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
@@ -2051,30 +2053,36 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     double* pCFC_postEQ_Level = CFC_postEQ_Level;
   #endif
 
-  int nfreq = tx->eq_tenband ? 10 : 4;
-  SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
+  // the [0] element of the array tx->eq_freq is NOT USED, only [1]..[10] if EQ10band or [1]..[4] if EQ4band
+  // so we have an array with 11 instead of 10 (or 5 instead of 4) elements of the array tx->eq_freq
+  // the element [0] of array tx->eq_gain represent the pre-amp gain value of TX-EQ, the other elements are the gain for the EQ bands (4 or 10)
+  int nfreq = tx->eq_tenband ? 10 : 4;                      //using EQ4 or EQ10
+  SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain); // load the profile into TX-EQ
   
+  // CFC can only be used if USE_CFC defined as constant at begin og this file
+  // the TX-EQ function is not affected, but the CFC runs only if TX-EQ is active
   #ifdef USE_CFC
-    // load profile in the CFC
+    // load pre-defined CFC profile CFC_EQ_tenbands, CFC_preEQ_Level, CFC_postEQ_Level
     SetTXACFCOMPprofile(tx->id, 10, pCFC_EQ_tenbands, pCFC_preEQ_Level, pCFC_postEQ_Level);
-    // set pre-amp level in db of CFC
+    // set pre-defined pre-amp level CFC_preGain in db for CFC
     SetTXACFCOMPPrecomp(tx->id, CFC_preGain);
-    // set post-amp level in db of CFC
+    // set pre-defined post-amp level CFC_postGain in db for CFC
     SetTXACFCOMPPrePeq(tx->id, CFC_postGain);
   #endif
 
-  SetTXAEQRun(tx->id, tx->eq_enable);
+  SetTXAEQRun(tx->id, tx->eq_enable); // fire up the TX-EQ if enabled
+  // print debug output
   t_print("%s: nfreq=%d, EQ bands: %lu\n", __FUNCTION__, nfreq, sizeof(tx->eq_freq) / sizeof(tx->eq_freq[0]));
   for (int i = 1; i < 11; i++) {
       t_print("%s: EQ[%d] setting %.1fHz with gain %.1f\n", __FUNCTION__, i, tx->eq_freq[i], tx->eq_gain[i]);
   }
   t_print("%s: TX-EQ state %d with Gain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain[0]);
   #ifdef USE_CFC
-    // fire up the CFC pre-compressor
+    // fire up the CFC pre-compressor only if TX-EQ enabled
     SetTXACFCOMPRun(tx->id, tx->eq_enable);
-    // fire up the CFC post-compressor
+    // fire up the CFC post-compressor only if TX-EQ enabled
     SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
-    // write to log (with 1 decimal places %f -> %.1f)
+    // debug output, write to log (print double values with 1 decimal places %f -> %.1f)
     t_print("%s: number of CFC-EQ bands: %lu\n", __FUNCTION__, sizeof(CFC_EQ_tenbands) / sizeof(CFC_EQ_tenbands[0]));
     for (int i = 0; i < 10; i++) {
       t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, CFC_EQ_tenbands[i], CFC_preEQ_Level[i], CFC_postEQ_Level[i]);
