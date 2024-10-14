@@ -1,4 +1,6 @@
 GNUmakefile
+*.bak
+*.org
 *.aux
 *.log
 *.toc

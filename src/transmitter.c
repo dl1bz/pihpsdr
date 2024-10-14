@@ -59,7 +59,6 @@
 
 #define min(x,y) (x<y?x:y)
 #define max(x,y) (x<y?y:x)
-#define USE_CFC
 
 //
 // CW pulses are timed by the heart-beat of the mic samples.
@@ -357,9 +356,22 @@ void tx_save_state(const TRANSMITTER *tx) {
   SetPropI1("transmitter.%d.eq_tenband", tx->id,                      tx->eq_tenband);
 
   for (int i = 0; i < 11; i++) {
-    SetPropF2("transmitter.%d.eq_freq[%d]", tx->id, i,             tx->eq_freq[i]);
-    SetPropF2("transmitter.%d.eq_gain[%d]", tx->id, i,             tx->eq_gain[i]);
+    SetPropF2("transmitter.%d.eq_freq[%d]",     tx->id, i,            tx->eq_freq[i]);
+    SetPropF2("transmitter.%d.eq_gain[%d]",     tx->id, i,            tx->eq_gain[i]);
   }
+
+  // add CFC
+  SetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
+  SetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
+
+  for (int i = 0; i < 10; i++) {
+    SetPropF2("transmitter.%d.txcfc_EQfrq[%d]",       tx->id, i,      tx->txcfc_EQfrq[i]);
+    SetPropF2("transmitter.%d.txcfc_preEQlevel[%d]",  tx->id, i,      tx->txcfc_preEQlevel[i]);
+    SetPropF2("transmitter.%d.txcfc_postEQlevel[%d]", tx->id, i,      tx->txcfc_postEQlevel[i]); 
+  }
+  SetPropI1("transmitter.%d.LevAttack",         tx->id,               tx->LevAttack);
+  SetPropI1("transmitter.%d.LevDecay",          tx->id,               tx->LevDecay);
+  SetPropF1("transmitter.%d.LevGain",           tx->id,               tx->LevGain);
 }
 
 static void tx_restore_state(TRANSMITTER *tx) {
@@ -409,13 +421,25 @@ static void tx_restore_state(TRANSMITTER *tx) {
   GetPropI1("transmitter.%d.dialog_x",          tx->id,               tx->dialog_x);
   GetPropI1("transmitter.%d.dialog_y",          tx->id,               tx->dialog_y);
   GetPropI1("transmitter.%d.display_filled",    tx->id,               tx->display_filled);
-  GetPropI1("transmitter.%d.eq_enable", tx->id,                       tx->eq_enable);
-  GetPropI1("transmitter.%d.eq_tenband", tx->id,                      tx->eq_tenband);
+  GetPropI1("transmitter.%d.eq_enable",         tx->id,               tx->eq_enable);
+  GetPropI1("transmitter.%d.eq_tenband",        tx->id,               tx->eq_tenband);
 
   for (int i = 0; i < 11; i++) {
-    GetPropF2("transmitter.%d.eq_freq[%d]", tx->id, i,             tx->eq_freq[i]);
-    GetPropF2("transmitter.%d.eq_gain[%d]", tx->id, i,             tx->eq_gain[i]);
+    GetPropF2("transmitter.%d.eq_freq[%d]",     tx->id, i,            tx->eq_freq[i]);
+    GetPropF2("transmitter.%d.eq_gain[%d]",     tx->id, i,            tx->eq_gain[i]);
   }
+  // add CFC
+  GetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
+  GetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
+
+  for (int i = 0; i < 10; i++) {
+    GetPropF2("transmitter.%d.txcfc_EQfrq[%d]", tx->id, i,            tx->txcfc_EQfrq[i]);
+    GetPropF2("transmitter.%d.txcfc_preEQlevel[%d]", tx->id, i,       tx->txcfc_preEQlevel[i]);
+    GetPropF2("transmitter.%d.txcfc_postEQlevel[%d]", tx->id, i,      tx->txcfc_postEQlevel[i]); 
+  }
+  GetPropI1("transmitter.%d.LevAttack",         tx->id,               tx->LevAttack);
+  GetPropI1("transmitter.%d.LevDecay",          tx->id,               tx->LevDecay);
+  GetPropF1("transmitter.%d.LevGain",           tx->id,               tx->LevGain);
 }
 
 static double compute_power(double p) {
@@ -925,6 +949,47 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->eq_gain[8]  = 0.0;
   tx->eq_gain[9]  = 0.0;
   tx->eq_gain[10] = 0.0;
+
+  tx->txcfc_EQfrq[0] = 50.0;
+  tx->txcfc_EQfrq[1] = 150.0;
+  tx->txcfc_EQfrq[2] = 300.0;
+  tx->txcfc_EQfrq[3] = 500.0;
+  tx->txcfc_EQfrq[4] = 750.0;
+  tx->txcfc_EQfrq[5] = 1250.0;
+  tx->txcfc_EQfrq[6] = 1750.0;
+  tx->txcfc_EQfrq[7] = 2300.0;
+  tx->txcfc_EQfrq[8] = 2800.0;
+  tx->txcfc_EQfrq[9] = 3100.0;
+
+  tx->txcfc_preEQlevel[0] = 0.0;
+  tx->txcfc_preEQlevel[1] = 0.0;
+  tx->txcfc_preEQlevel[2] = 3.0;
+  tx->txcfc_preEQlevel[3] = 3.0;
+  tx->txcfc_preEQlevel[4] = 3.0;
+  tx->txcfc_preEQlevel[5] = 6.0;
+  tx->txcfc_preEQlevel[6] = 6.0;
+  tx->txcfc_preEQlevel[7] = 6.0;
+  tx->txcfc_preEQlevel[8] = 9.0;
+  tx->txcfc_preEQlevel[9] = 9.0;
+
+  tx->txcfc_postEQlevel[0] = 0.0;
+  tx->txcfc_postEQlevel[1] = 0.0;
+  tx->txcfc_postEQlevel[2] = 0.0;
+  tx->txcfc_postEQlevel[3] = 0.0;
+  tx->txcfc_postEQlevel[4] = 0.0;
+  tx->txcfc_postEQlevel[5] = 0.0;
+  tx->txcfc_postEQlevel[6] = 0.0;
+  tx->txcfc_postEQlevel[7] = 0.0;
+  tx->txcfc_postEQlevel[8] = 0.0;
+  tx->txcfc_postEQlevel[9] = 0.0;
+
+  tx->txcfc_preGain = 3.0;
+  tx->txcfc_postGain = -9.0;
+
+  tx->LevAttack = 1;
+  tx->LevDecay = 500;
+  tx->LevGain = 15.0; // old value 6.0
+
   //
   // Some of these values cannot be changed.
   // If using PURESIGNAL and displaying the feedback signal,
@@ -996,6 +1061,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx_set_bandpass(tx);
   tx_set_deviation(tx);
   tx_set_equalizer(tx);
+  tx_set_cfc(tx);
   tx_set_ctcss(tx);
   tx_set_am_carrier_level(tx);
   tx_set_ctcss(tx);
@@ -1957,35 +2023,31 @@ void tx_set_compressor(const TRANSMITTER *tx) {
   // The compressor only works well if the mic level peaks at
   // 0 dB, therefore, the auto-leveler is also automatically
   // activated when en/dis-abling the compressor(de-)
-  //
-  
-  // baseband compressor means speech processor in WDSP
-  SetTXACompressorGain(tx->id, tx->compressor_level); // define in TX menu
-  SetTXACompressorRun(tx->id, tx->compressor); // ON=1 or OFF=0, tick Compression ON/OFF in TX menu
-  t_print("%s: Compressor state %d with level %.1fdb\n", __FUNCTION__, tx->compressor, tx->compressor_level);
-  
+
+  // baseband compressor
+  SetTXACompressorGain(tx->id, tx->compressor_level); // set Compressor Gain defined in TX menu
+  SetTXACompressorRun(tx->id, tx->compressor);        // set Compressor ON or OFF in TX menu
+
   // CESSB handling
   if (tx->compressor == 1) { 
-   SetTXAosctrlRun(tx->id, tx->compressor);
+   SetTXAosctrlRun(tx->id, 1); // CESSB ON
+   // debug output
    t_print("%s: CESSB state ON\n", __FUNCTION__);
   } else {
-   SetTXAosctrlRun(tx->id, 0);
+   SetTXAosctrlRun(tx->id, 0); // CESSB OFF if compressor is OFF
+   // debug output
    t_print("%s: CESSB state OFF, because CESSB can be used if Compressor is ON\n", __FUNCTION__);
   }
-  
-  // leveler
-  double Leveler_MaxGain = 6.0; // in db
-  int Leveler_Attack = 1; // in ms
-  int Leveler_Decay = 500; // in ms
 
-  SetTXALevelerAttack(tx->id, Leveler_Attack);
-  SetTXALevelerDecay(tx->id, Leveler_Decay);
-  #if defined (USE_CFC)
-    Leveler_MaxGain = 15.0;
-  #endif
-  SetTXALevelerTop(tx->id, Leveler_MaxGain); // set Leveler MaxGain
-  SetTXALevelerSt(tx->id, tx->compressor);   // fire up Leveler in conjunktion with the baseband compressor
-  t_print("%s: Leveler state %d with MaxGain %.1fdb, Attack %dms, Decay %dms\n", __FUNCTION__, tx->compressor, Leveler_MaxGain, Leveler_Attack, Leveler_Decay);
+  // Leveler
+  SetTXALevelerAttack(tx->id, tx->LevAttack);             // attack time in ms
+  SetTXALevelerDecay(tx->id, tx->LevDecay);            // decay time in ms
+  SetTXALevelerTop(tx->id, tx->LevGain);              // gain in db
+  SetTXALevelerSt(tx->id, tx->compressor);    // activate Leveler only if Compressor ON
+
+  // debug output
+  t_print("%s: Leveler state %d with MaxGain %.1fdb, Attack %dms, Decay %dms\n", __FUNCTION__, tx->compressor, tx->LevGain, tx->LevAttack, tx->LevDecay);
+  // t_print("%s: Leveler state %d\n", __FUNCTION__, tx->compressor);
 }
 
 void tx_set_ctcss(const TRANSMITTER *tx) {
@@ -2029,66 +2091,29 @@ void tx_set_deviation(const TRANSMITTER *tx) {
 }
 
 void tx_set_equalizer(TRANSMITTER *tx) {
-  /*
-     Patch by DL1BZ: Using the CFC from WDSP lib in piHPSDR
-  */
- 
-  // CFC can only be used if USE_CFC defined as constant at begin og this file
-  // the TX-EQ function is not affected, but the CFC runs only if TX-EQ is active
-  #ifdef USE_CFC
-    // define 10 EQ freq for the CFC multiband compressor
-    double CFC_EQ_tenbands[10] = { 50, 150, 300, 500, 750, 1250, 1750, 2300, 2800, 3100 };
-    // define gain in db per EQ band as pre-compressor
-    // double CFC_preEQ_Level[10] = { 0, 0, 0, 3, 3, 6, 9, 9, 9, 9 }; // similiar to my Thetis
-    double CFC_preEQ_Level[10] = { 0, 0, 3, 3, 3, 6, 6, 6, 9, 9 }; // some correction for used mic with Mac
-    // define gain in db per freq as post-compressor
-    double CFC_postEQ_Level[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    // define pre-amp level in db for pre-compressor
-    double CFC_preGain = 3;
-    // define post-amp level in db for post-compressor
-    double CFC_postGain = -9;
-    // we need to set a pointer per array
-    double* pCFC_EQ_tenbands = CFC_EQ_tenbands;
-    double* pCFC_preEQ_Level = CFC_preEQ_Level;
-    double* pCFC_postEQ_Level = CFC_postEQ_Level;
-  #endif
+  int nfreq = tx->eq_tenband ? 10 : 4;
+  SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
+  SetTXAEQRun(tx->id, tx->eq_enable);
+}
 
-  // the [0] element of the array tx->eq_freq is NOT USED, only [1]..[10] if EQ10band or [1]..[4] if EQ4band
-  // so we have an array with 11 instead of 10 (or 5 instead of 4) elements of the array tx->eq_freq
-  // the element [0] of array tx->eq_gain represent the pre-amp gain value of TX-EQ, the other elements are the gain for the EQ bands (4 or 10)
-  int nfreq = tx->eq_tenband ? 10 : 4;                      //using EQ4 or EQ10
-  SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain); // load the profile into TX-EQ
-  
-  // CFC can only be used if USE_CFC defined as constant at begin og this file
-  // the TX-EQ function is not affected, but the CFC runs only if TX-EQ is active
-  #ifdef USE_CFC
-    // load pre-defined CFC profile CFC_EQ_tenbands, CFC_preEQ_Level, CFC_postEQ_Level
-    SetTXACFCOMPprofile(tx->id, 10, pCFC_EQ_tenbands, pCFC_preEQ_Level, pCFC_postEQ_Level);
-    // set pre-defined pre-amp level CFC_preGain in db for CFC
-    SetTXACFCOMPPrecomp(tx->id, CFC_preGain);
-    // set pre-defined post-amp level CFC_postGain in db for CFC
-    SetTXACFCOMPPrePeq(tx->id, CFC_postGain);
-  #endif
+// add CFC function
+void tx_set_cfc(TRANSMITTER *tx) {
+// load pre-defined CFC profile CFC EQ bands, CFC preEQ level, CFC postEQ level
+SetTXACFCOMPprofile(tx->id, 10, tx->txcfc_EQfrq, tx->txcfc_preEQlevel, tx->txcfc_postEQlevel);
+// set pre-defined pre-amp level in db for CFC
+SetTXACFCOMPPrecomp(tx->id, tx->txcfc_preGain);
+// set pre-defined post-amp level in db for CFC
+SetTXACFCOMPPrePeq(tx->id, tx->txcfc_postGain);
+// fire up the CFC pre-compressor only if TX-EQ enabled
+SetTXACFCOMPRun(tx->id, tx->eq_enable);
+// fire up the CFC post-compressor only if TX-EQ enabled
+SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
 
-  SetTXAEQRun(tx->id, tx->eq_enable); // fire up the TX-EQ if enabled
-  // print debug output
-  t_print("%s: nfreq=%d, EQ bands: %lu\n", __FUNCTION__, nfreq, sizeof(tx->eq_freq) / sizeof(tx->eq_freq[0]));
-  for (int i = 1; i < 11; i++) {
-      t_print("%s: EQ[%d] setting %.1fHz with gain %.1f\n", __FUNCTION__, i, tx->eq_freq[i], tx->eq_gain[i]);
-  }
-  t_print("%s: TX-EQ state %d with Gain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain[0]);
-  #ifdef USE_CFC
-    // fire up the CFC pre-compressor only if TX-EQ enabled
-    SetTXACFCOMPRun(tx->id, tx->eq_enable);
-    // fire up the CFC post-compressor only if TX-EQ enabled
-    SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
-    // debug output, write to log (print double values with 1 decimal places %f -> %.1f)
-    t_print("%s: number of CFC-EQ bands: %lu\n", __FUNCTION__, sizeof(CFC_EQ_tenbands) / sizeof(CFC_EQ_tenbands[0]));
-    for (int i = 0; i < 10; i++) {
-      t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, CFC_EQ_tenbands[i], CFC_preEQ_Level[i], CFC_postEQ_Level[i]);
+// debug output
+for (int i = 0; i < 10; i++) {
+      t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, tx->txcfc_EQfrq[i], tx->txcfc_preEQlevel[i], tx->txcfc_postEQlevel[i]);
     }
-    t_print("%s: CFC state %d with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->eq_enable, CFC_preGain, CFC_postGain);
-  #endif
+    t_print("%s: CFC state %d with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->txcfc_preGain, tx->txcfc_postGain);
 }
 
 void tx_set_fft_size(const TRANSMITTER *tx) {

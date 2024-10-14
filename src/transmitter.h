@@ -150,6 +150,17 @@ typedef struct _transmitter {
   double eq_gain[11];  // gain in dB
   int    eq_tenband;   // four or ten channels
 
+  // CFC data
+  double txcfc_EQfrq[10];          // frequency in Hz
+  double txcfc_preEQlevel[10];  // pre-gain per EQ band in db
+  double txcfc_postEQlevel[10]; // post-gain per EQ band in db
+  double txcfc_preGain;         // overall CFC pre-gain in db
+  double txcfc_postGain;        // overall CFC post-gain in db
+
+  int LevAttack;
+  int LevDecay;
+  double LevGain;
+
 } TRANSMITTER;
 
 extern TRANSMITTER *tx_create_transmitter(int id, int width, int height);
@@ -200,6 +211,7 @@ extern void   tx_set_detector(const TRANSMITTER *tx);
 extern void   tx_set_deviation(const TRANSMITTER *tx);
 extern void   tx_set_displaying(TRANSMITTER *tx);
 extern void   tx_set_equalizer(TRANSMITTER *tx);
+extern void   tx_set_cfc(TRANSMITTER *tx); // add CFC
 extern void   tx_set_fft_size(const TRANSMITTER *tx);
 extern void   tx_set_filter(TRANSMITTER *tx);
 extern void   tx_set_framerate(TRANSMITTER *tx);
