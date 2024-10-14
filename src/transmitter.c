@@ -1074,6 +1074,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx_set_equalizer(tx);
   //-------------------- add CFC function ---------------------------/
   tx_set_cfc(tx);
+  //-----------------------------------------------------------------/
   tx_set_ctcss(tx);
   tx_set_am_carrier_level(tx);
   tx_set_ctcss(tx);

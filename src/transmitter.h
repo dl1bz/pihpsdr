@@ -158,10 +158,12 @@ typedef struct _transmitter {
   double txcfc_postEQlevel[10]; // post-gain per EQ band in db
   double txcfc_preGain;         // overall CFC pre-gain in db
   double txcfc_postGain;        // overall CFC post-gain in db
+  
 
   int LevAttack;
   int LevDecay;
   double LevGain;
+  //-----------------------------------------------------------------/
 
 } TRANSMITTER;
 
@@ -213,7 +215,9 @@ extern void   tx_set_detector(const TRANSMITTER *tx);
 extern void   tx_set_deviation(const TRANSMITTER *tx);
 extern void   tx_set_displaying(TRANSMITTER *tx);
 extern void   tx_set_equalizer(TRANSMITTER *tx);
-extern void   tx_set_cfc(TRANSMITTER *tx); // add CFC
+//-------------------- add CFC function ---------------------------/
+extern void   tx_set_cfc(TRANSMITTER *tx);
+//-----------------------------------------------------------------/
 extern void   tx_set_fft_size(const TRANSMITTER *tx);
 extern void   tx_set_filter(TRANSMITTER *tx);
 extern void   tx_set_framerate(TRANSMITTER *tx);
