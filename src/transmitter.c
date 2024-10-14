@@ -2105,8 +2105,8 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   // debug output
   for (int i = 1; i < nfreq+1; i++) {
     t_print("%s: TX-EQ[%d] setting %.1fHz with %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
-    t_print("%s: TX-EQ Gain: %.1fdb\n", __FUNCTION__, tx->eq_gain[0]);
   }
+    t_print("%s: TX-EQ Gain: %.1fdb, Mic Gain: %.1f\n", __FUNCTION__, tx->eq_gain[0], tx->mic_gain);
     t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
 }
 
