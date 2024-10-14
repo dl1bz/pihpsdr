@@ -2102,7 +2102,7 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
   SetTXAEQRun(tx->id, tx->eq_enable);
 
-  // debuf output
+  // debug output
   for (int i = 1; i < nfreq+1; i++) {
     t_print("%s: TX-EQ[%d] setting %.1fHz with %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
     t_print("%s: TX-EQ Gain: %.1fdb\n", __FUNCTION__, tx->eq_gain[0]);
