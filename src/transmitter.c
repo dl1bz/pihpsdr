@@ -360,7 +360,7 @@ void tx_save_state(const TRANSMITTER *tx) {
     SetPropF2("transmitter.%d.eq_gain[%d]",     tx->id, i,            tx->eq_gain[i]);
   }
 
-  // add CFC
+  //-------------------- add CFC function ---------------------------/
   SetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
   SetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
   SetPropI1("transmitter.%d.txcfc_pre_enable",  tx->id,               tx->txcfc_pre_enable);
@@ -374,6 +374,7 @@ void tx_save_state(const TRANSMITTER *tx) {
   SetPropI1("transmitter.%d.LevAttack",         tx->id,               tx->LevAttack);
   SetPropI1("transmitter.%d.LevDecay",          tx->id,               tx->LevDecay);
   SetPropF1("transmitter.%d.LevGain",           tx->id,               tx->LevGain);
+  //-----------------------------------------------------------------/
 }
 
 static void tx_restore_state(TRANSMITTER *tx) {
@@ -430,7 +431,7 @@ static void tx_restore_state(TRANSMITTER *tx) {
     GetPropF2("transmitter.%d.eq_freq[%d]",     tx->id, i,            tx->eq_freq[i]);
     GetPropF2("transmitter.%d.eq_gain[%d]",     tx->id, i,            tx->eq_gain[i]);
   }
-  // add CFC
+  //-------------------- add CFC function ---------------------------/
   GetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
   GetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
   GetPropI1("transmitter.%d.txcfc_pre_enable",  tx->id,               tx->txcfc_pre_enable);
@@ -444,6 +445,7 @@ static void tx_restore_state(TRANSMITTER *tx) {
   GetPropI1("transmitter.%d.LevAttack",         tx->id,               tx->LevAttack);
   GetPropI1("transmitter.%d.LevDecay",          tx->id,               tx->LevDecay);
   GetPropF1("transmitter.%d.LevGain",           tx->id,               tx->LevGain);
+  //-----------------------------------------------------------------/
 }
 
 static double compute_power(double p) {
@@ -931,7 +933,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->alc = 0.0;
   tx->eq_enable = 0;
   tx->eq_tenband  = 1;
-  tx->eq_freq[0]  =     0.0;
+  tx->eq_freq[0]  =     0.0; // index 0 will be ignored by the WDSP
   tx->eq_freq[1]  =    70.0;
   tx->eq_freq[2]  =   150.0;
   tx->eq_freq[3]  =   300.0;
@@ -942,7 +944,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->eq_freq[8]  =  2500.0;
   tx->eq_freq[9]  =  3000.0;
   tx->eq_freq[10] =  3500.0;
-  tx->eq_gain[0]  =     0.0;
+  tx->eq_gain[0]  =     0.0; // index 0 is the gain level for the TX-EQ
   tx->eq_gain[1]  =    -9.0;
   tx->eq_gain[2]  =    -6.0;
   tx->eq_gain[3]  =    -6.0;
@@ -953,7 +955,8 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->eq_gain[8]  =     3.0;
   tx->eq_gain[9]  =     3.0;
   tx->eq_gain[10] =     3.0;
-
+  
+  //-------------------- add CFC function ---------------------------/
   tx->txcfc_EQfrq[0] = 50.0;
   tx->txcfc_EQfrq[1] = 150.0;
   tx->txcfc_EQfrq[2] = 300.0;
@@ -996,6 +999,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->LevAttack = 1;
   tx->LevDecay = 500;
   tx->LevGain = 15.0; // old value 6.0
+  //-----------------------------------------------------------------/
 
   //
   // Some of these values cannot be changed.
@@ -1068,6 +1072,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx_set_bandpass(tx);
   tx_set_deviation(tx);
   tx_set_equalizer(tx);
+  //-------------------- add CFC function ---------------------------/
   tx_set_cfc(tx);
   tx_set_ctcss(tx);
   tx_set_am_carrier_level(tx);
@@ -2110,7 +2115,7 @@ void tx_set_equalizer(TRANSMITTER *tx) {
     t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
 }
 
-//-------------------- add CFC function ---------------------------
+//-------------------- add CFC function ---------------------------/
 void tx_set_cfc(TRANSMITTER *tx) {
 // load pre-defined CFC profile CFC EQ bands, CFC preEQ level, CFC postEQ level
 SetTXACFCOMPprofile(tx->id, 10, tx->txcfc_EQfrq, tx->txcfc_preEQlevel, tx->txcfc_postEQlevel);
@@ -2127,9 +2132,10 @@ SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
 for (int i = 0; i < 10; i++) {
       t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, tx->txcfc_EQfrq[i], tx->txcfc_preEQlevel[i], tx->txcfc_postEQlevel[i]);
     }
-    t_print("%s: CFC-EQ with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->txcfc_preGain, tx->txcfc_postGain);
-    t_print("%s: CFC-EQ state: %d\n", __FUNCTION__, tx->eq_enable);
+      t_print("%s: CFC-EQ with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->txcfc_preGain, tx->txcfc_postGain);
+      t_print("%s: CFC-EQ state: %d\n", __FUNCTION__, tx->eq_enable);
 }
+//-----------------------------------------------------------------/
 
 void tx_set_fft_size(const TRANSMITTER *tx) {
   TXASetNC(tx->id, tx->fft_size);
