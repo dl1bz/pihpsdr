@@ -2102,13 +2102,15 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
   SetTXAEQRun(tx->id, tx->eq_enable);
 
-  for (int i = 0; i < nfreq+1; i++) {
-    t_print("%s: TX-EQ[%d] setting %.1fHz with gain %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
+  // debuf output
+  for (int i = 1; i < nfreq+1; i++) {
+    t_print("%s: TX-EQ[%d] setting %.1fHz with %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
+    t_print("%s: TX-EQ Gain: %.1fdb\n", __FUNCTION__, tx->eq_gain[0]);
   }
-  t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
+    t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
 }
 
-// add CFC function
+//-------------------- add CFC function ---------------------------
 void tx_set_cfc(TRANSMITTER *tx) {
 // load pre-defined CFC profile CFC EQ bands, CFC preEQ level, CFC postEQ level
 SetTXACFCOMPprofile(tx->id, 10, tx->txcfc_EQfrq, tx->txcfc_preEQlevel, tx->txcfc_postEQlevel);
