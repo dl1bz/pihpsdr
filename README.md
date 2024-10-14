@@ -4,8 +4,8 @@ CFC patch by DL1BZ
 
 This is a modified version by DL1BZ of pihpsdr from https://github.com/dl1ycf/pihpsdr with activated CFC and some small optimization for macOS. 
 
-The CFC activation and it's configuration profile is only hard-coded in the src/transmitter.c, no access from GUI at this time.
-The CFC is part of the WDSP library, but up to my patch piHPSDR don't use it.
+The CFC activation and it's configuration profile is only hard-coded in the src/transmitter.c, no access from GUI at this time.<br>
+The CFC is part of the WDSP library, but up to my patch piHPSDR don't use it.<br>
 For understand: CFC = Continuous Frequency Compressor = Multiband-Compressor, which can selective compress different AF frequencies more or less.
 That can be produce in addition a more accurate TX SSB audio like only a plain overall compressor.
 
