@@ -537,7 +537,7 @@ void vfo_apply_mode_settings(RECEIVER *rx) {
 
     transmitter->compressor = mode_settings[m].compressor;
     transmitter->compressor_level = mode_settings[m].compressor_level;
-    tx_set_compressor      (transmitter);
+    tx_set_compressor(transmitter);
   }
 
   //

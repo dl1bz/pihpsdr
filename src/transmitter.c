@@ -363,6 +363,8 @@ void tx_save_state(const TRANSMITTER *tx) {
   // add CFC
   SetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
   SetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
+  SetPropI1("transmitter.%d.txcfc_pre_enable",  tx->id,               tx->txcfc_pre_enable);
+  SetPropI1("transmitter.%d.txcfc_post_enable", tx->id,               tx->txcfc_post_enable);
 
   for (int i = 0; i < 10; i++) {
     SetPropF2("transmitter.%d.txcfc_EQfrq[%d]",       tx->id, i,      tx->txcfc_EQfrq[i]);
@@ -431,6 +433,8 @@ static void tx_restore_state(TRANSMITTER *tx) {
   // add CFC
   GetPropF1("transmitter.%d.txcfc_preGain",     tx->id,               tx->txcfc_preGain);
   GetPropF1("transmitter.%d.txcfc_postGain",    tx->id,               tx->txcfc_postGain);
+  GetPropI1("transmitter.%d.txcfc_pre_enable",  tx->id,               tx->txcfc_pre_enable);
+  GetPropI1("transmitter.%d.txcfc_post_enable", tx->id,               tx->txcfc_post_enable);
 
   for (int i = 0; i < 10; i++) {
     GetPropF2("transmitter.%d.txcfc_EQfrq[%d]", tx->id, i,            tx->txcfc_EQfrq[i]);
@@ -907,7 +911,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->pre_emphasize = 0;
   tx->am_carrier_level = 0.5;
   tx->drive = 50;
-  tx->tune_drive = 10;
+  tx->tune_drive = 2;
   tx->mic_gain = 0.0;
   tx->tune_use_drive = 0;
   tx->drive_level = 0;
@@ -915,7 +919,7 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->drive_iscal = 1.0;
   tx->do_scale = 0;
   tx->compressor = 0;
-  tx->compressor_level = 0.0;
+  tx->compressor_level = 4.0;
   tx->local_microphone = 0;
   STRLCPY(tx->microphone_name, "NO MIC", 128);
   tx->dialog_x = -1;
@@ -926,29 +930,29 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->swr_alarm = 3.0;     // default value for SWR protection
   tx->alc = 0.0;
   tx->eq_enable = 0;
-  tx->eq_tenband  = 0;
+  tx->eq_tenband  = 1;
   tx->eq_freq[0]  =     0.0;
-  tx->eq_freq[1]  =   200.0;
-  tx->eq_freq[2]  =   500.0;
-  tx->eq_freq[3]  =  1200.0;
-  tx->eq_freq[4]  =  3000.0;
-  tx->eq_freq[5]  =  5000.0;
-  tx->eq_freq[6]  =  7000.0;
-  tx->eq_freq[7]  =  9000.0;
-  tx->eq_freq[8]  = 11000.0;
-  tx->eq_freq[9]  = 13000.0;
-  tx->eq_freq[10] = 15000.0;
-  tx->eq_gain[0]  = 0.0;
-  tx->eq_gain[1]  = 0.0;
-  tx->eq_gain[2]  = 0.0;
-  tx->eq_gain[3]  = 0.0;
-  tx->eq_gain[4]  = 0.0;
-  tx->eq_gain[5]  = 0.0;
-  tx->eq_gain[6]  = 0.0;
-  tx->eq_gain[7]  = 0.0;
-  tx->eq_gain[8]  = 0.0;
-  tx->eq_gain[9]  = 0.0;
-  tx->eq_gain[10] = 0.0;
+  tx->eq_freq[1]  =    70.0;
+  tx->eq_freq[2]  =   150.0;
+  tx->eq_freq[3]  =   300.0;
+  tx->eq_freq[4]  =   500.0;
+  tx->eq_freq[5]  =  1000.0;
+  tx->eq_freq[6]  =  1500.0;
+  tx->eq_freq[7]  =  2000.0;
+  tx->eq_freq[8]  =  2500.0;
+  tx->eq_freq[9]  =  3000.0;
+  tx->eq_freq[10] =  3500.0;
+  tx->eq_gain[0]  =     0.0;
+  tx->eq_gain[1]  =    -9.0;
+  tx->eq_gain[2]  =    -6.0;
+  tx->eq_gain[3]  =    -6.0;
+  tx->eq_gain[4]  =    -9.0;
+  tx->eq_gain[5]  =     0.0;
+  tx->eq_gain[6]  =     0.0;
+  tx->eq_gain[7]  =     3.0;
+  tx->eq_gain[8]  =     3.0;
+  tx->eq_gain[9]  =     3.0;
+  tx->eq_gain[10] =     3.0;
 
   tx->txcfc_EQfrq[0] = 50.0;
   tx->txcfc_EQfrq[1] = 150.0;
@@ -985,6 +989,9 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
 
   tx->txcfc_preGain = 3.0;
   tx->txcfc_postGain = -9.0;
+
+  tx->txcfc_pre_enable = 0;
+  tx->txcfc_post_enable = 0;
 
   tx->LevAttack = 1;
   tx->LevDecay = 500;
@@ -2094,6 +2101,11 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   int nfreq = tx->eq_tenband ? 10 : 4;
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
   SetTXAEQRun(tx->id, tx->eq_enable);
+
+  for (int i = 0; i < nfreq+1; i++) {
+    t_print("%s: TX-EQ[%d] setting %.1fHz with gain %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
+  }
+  t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
 }
 
 // add CFC function
@@ -2113,7 +2125,8 @@ SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
 for (int i = 0; i < 10; i++) {
       t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, tx->txcfc_EQfrq[i], tx->txcfc_preEQlevel[i], tx->txcfc_postEQlevel[i]);
     }
-    t_print("%s: CFC state %d with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->eq_enable, tx->txcfc_preGain, tx->txcfc_postGain);
+    t_print("%s: CFC-EQ with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->txcfc_preGain, tx->txcfc_postGain);
+    t_print("%s: CFC-EQ state: %d\n", __FUNCTION__, tx->eq_enable);
 }
 
 void tx_set_fft_size(const TRANSMITTER *tx) {

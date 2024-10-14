@@ -76,6 +76,7 @@ void update_eq() {
   } else {
     if (can_transmit) {
       tx_set_equalizer(transmitter);
+      tx_set_cfc(transmitter);
     }
 
     for (int id = 0; id < receivers; id++) {

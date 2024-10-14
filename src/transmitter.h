@@ -151,7 +151,9 @@ typedef struct _transmitter {
   int    eq_tenband;   // four or ten channels
 
   // CFC data
-  double txcfc_EQfrq[10];          // frequency in Hz
+  int txcfc_pre_enable;         // pre CFC on/off
+  int txcfc_post_enable;        // post CFC on/off
+  double txcfc_EQfrq[10];       // frequency in Hz
   double txcfc_preEQlevel[10];  // pre-gain per EQ band in db
   double txcfc_postEQlevel[10]; // post-gain per EQ band in db
   double txcfc_preGain;         // overall CFC pre-gain in db

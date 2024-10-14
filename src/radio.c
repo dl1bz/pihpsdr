@@ -275,8 +275,8 @@ int analog_meter = 0;
 int eer_pwm_min = 100;
 int eer_pwm_max = 800;
 
-int tx_filter_low = 150;
-int tx_filter_high = 2850;
+int tx_filter_low = 100;
+int tx_filter_high = 2900;
 
 static int pre_tune_mode;
 static int pre_tune_cw_internal;
@@ -3017,16 +3017,24 @@ void radio_start_playback() {
   //
   int  comp   = transmitter->compressor;
   int  eq     = transmitter->eq_enable;
+  int  cfc_pre_en = transmitter->txcfc_pre_enable;
+  int  cfc_post_en = transmitter->txcfc_post_enable;
   double gain = transmitter->mic_gain;
   transmitter->eq_enable = 0;
   transmitter->compressor = 0;
   transmitter->mic_gain = 0.0;
+  transmitter->txcfc_pre_enable = 0;
+  transmitter->txcfc_post_enable = 0;
   tx_set_equalizer(transmitter);
+  tx_set_cfc(transmitter);
   tx_set_mic_gain(transmitter);
   tx_set_compressor(transmitter);
   transmitter->compressor = comp;
   transmitter->eq_enable  = eq;
   transmitter->mic_gain = gain;
+  transmitter->txcfc_pre_enable = cfc_pre_en;
+  transmitter->txcfc_post_enable = cfc_post_en;
+  t_print("%s: Start RX playback\n", __FUNCTION__);
 }
 
 void radio_end_playback() {
@@ -3037,6 +3045,8 @@ void radio_end_playback() {
   // - TX mic gain setting
   //
   tx_set_equalizer(transmitter);
+  tx_set_cfc(transmitter);
   tx_set_mic_gain(transmitter);
   tx_set_compressor(transmitter);
+  t_print("%s: Eend RX playback\n", __FUNCTION__);
 }
