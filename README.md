@@ -6,7 +6,7 @@ This is a modified version by DL1BZ of pihpsdr from https://github.com/dl1ycf/pi
 
 The CFC activation and it's configuration profile is only hard-coded in the src/transmitter.c, no access from GUI at this time.
 CFC function can be activated if set `#define USE_CFC` at begin of file transmitter.c and will be only ON if TX-EQ is ON.
-Look into transmitter.c in the function tx_set_equalizer(TRANSMITTER *tx) for adjust the CFC by yourself.
+Look into transmitter.c in the function `tx_set_equalizer(TRANSMITTER *tx)` for adjust the CFC by yourself.
 I add a lot of comments for understand how you need to do. The CFC is part of the WDSP library, but up to my patch piHPSDR don't use it.
 For understand: CFC = Continuous Frequency Compressor = Multiband-Compressor, which can selective compress different AF frequencies more or less.
 That can be produce in addition a more accurate TX SSB audio like only a plain overall compressor.
