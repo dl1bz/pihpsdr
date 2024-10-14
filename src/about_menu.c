@@ -81,7 +81,8 @@ void about_menu(GtkWidget *parent) {
            "    Laurence Barker, G8NJJ: USB OZY Support\n"
            //"    Johan Maas, PA3GSB: RadioBerry support\n"
            "    Ken Hopper, N9VV: Testing and Documentation\n"
-           "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI \n\n"
+           "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI\n"
+           "    Heiko Amft, DL1BZ: add CFC support \n\n"
            "Build date: %s (commit %s)\n"
            "Build version: %s\n"
            "WDSP version: %d.%02d\n\n",
