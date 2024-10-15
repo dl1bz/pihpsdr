@@ -172,14 +172,20 @@ static void enable_cb (GtkWidget *widget, gpointer data) {
 // add by DL1BZ
 static void precfc_enable_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  int mode = vfo[vfo_get_tx_vfo()].mode;
   transmitter->txcfc_pre_enable = val;
+  mode_settings[mode].txcfc_pre_enable = val;
+  copy_mode_settings(mode);
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }
 
 static void postcfc_enable_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  int mode = vfo[vfo_get_tx_vfo()].mode;
   transmitter->txcfc_post_enable = val;
+  mode_settings[mode].txcfc_post_enable = val;
+  copy_mode_settings(mode);
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }

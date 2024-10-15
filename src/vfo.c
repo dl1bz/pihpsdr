@@ -145,6 +145,23 @@ static void modesettingsSaveState() {
       SetPropF2("modeset.%d.rxeq.%d", i, j,          mode_settings[i].rx_eq_gain[j]);
       SetPropF2("modeset.%d.rxeqfrq.%d", i, j,       mode_settings[i].rx_eq_freq[j]);
     }
+     //-------------------- add CFC function ---------------------------/
+     SetPropF1("modeset.%d.txcfc_preGain", i,          mode_settings[i].txcfc_preGain);
+     SetPropF1("modeset.%d.txcfc_postGain", i,         mode_settings[i].txcfc_postGain);
+     SetPropI1("modeset.%d.txcfc_pre_enable", i,       mode_settings[i].txcfc_pre_enable);
+     SetPropI1("modeset.%d.txcfc_post_enable", i,      mode_settings[i].txcfc_post_enable);
+
+     for (int j = 0; j < 10; j++) {
+      SetPropF2("modeset.%d.txcfc_EQfrq.%d", i, j,            mode_settings[i].txcfc_EQfrq[j]);
+      SetPropF2("modeset.%d.txcfc_preEQlevel.%d", i, j,       mode_settings[i].txcfc_preEQlevel[j]);
+      SetPropF2("modeset.%d.txcfc_postEQlevel.%d", i, j,      mode_settings[i].txcfc_postEQlevel[j]);
+     }
+
+     SetPropI1("modeset.%d.LevAttack", i,              mode_settings[i].LevAttack);
+     SetPropI1("modeset.%d.LevDecay", i,               mode_settings[i].LevDecay);
+     SetPropF1("modeset.%d.LevGain", i,                mode_settings[i].LevGain);
+     //-----------------------------------------------------------------/ 
+
   }
 }
 
@@ -244,6 +261,52 @@ static void modesettingsRestoreState() {
     mode_settings[i].rx_eq_freq[10] = 15000.0;
     mode_settings[i].compressor = 0;
     mode_settings[i].compressor_level = 0.0;
+
+    //-------------------- add CFC function ---------------------------/
+    mode_settings[i].txcfc_EQfrq[0] =  50.0;
+    mode_settings[i].txcfc_EQfrq[1] = 150.0;
+    mode_settings[i].txcfc_EQfrq[2] = 300.0;
+    mode_settings[i].txcfc_EQfrq[3] = 500.0;
+    mode_settings[i].txcfc_EQfrq[4] = 750.0;
+    mode_settings[i].txcfc_EQfrq[5] = 1250.0;
+    mode_settings[i].txcfc_EQfrq[6] = 1750.0;
+    mode_settings[i].txcfc_EQfrq[7] = 2300.0;
+    mode_settings[i].txcfc_EQfrq[8] = 2800.0;
+    mode_settings[i].txcfc_EQfrq[9] = 3100.0;
+
+    mode_settings[i].txcfc_preEQlevel[0] = 0.0;
+    mode_settings[i].txcfc_preEQlevel[1] = 0.0;
+    mode_settings[i].txcfc_preEQlevel[2] = 3.0;
+    mode_settings[i].txcfc_preEQlevel[3] = 3.0;
+    mode_settings[i].txcfc_preEQlevel[4] = 3.0;
+    mode_settings[i].txcfc_preEQlevel[5] = 6.0;
+    mode_settings[i].txcfc_preEQlevel[6] = 6.0;
+    mode_settings[i].txcfc_preEQlevel[7] = 6.0;
+    mode_settings[i].txcfc_preEQlevel[8] = 9.0;
+    mode_settings[i].txcfc_preEQlevel[9] = 9.0;
+    
+    mode_settings[i].txcfc_postEQlevel[0] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[1] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[2] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[3] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[4] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[5] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[6] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[7] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[8] = 0.0;
+    mode_settings[i].txcfc_postEQlevel[9] = 0.0;
+
+    mode_settings[i].txcfc_preGain = 3.0;
+    mode_settings[i].txcfc_postGain = -9.0;
+    
+    mode_settings[i].txcfc_pre_enable = 0;
+    mode_settings[i].txcfc_post_enable = 0;
+    
+    mode_settings[i].LevAttack = 1;
+    mode_settings[i].LevDecay = 500;
+    mode_settings[i].LevGain = 15.0;
+    //-----------------------------------------------------------------/ 
+
     GetPropI1("modeset.%d.filter", i,                mode_settings[i].filter);
     GetPropI1("modeset.%d.cwPeak", i,                mode_settings[i].cwPeak);
     GetPropI1("modeset.%d.nr", i,                    mode_settings[i].nr);
@@ -282,6 +345,24 @@ static void modesettingsRestoreState() {
       GetPropF2("modeset.%d.txeqfrq.%d", i, j,       mode_settings[i].tx_eq_freq[j]);
       GetPropF2("modeset.%d.rxeqfrq.%d", i, j,       mode_settings[i].rx_eq_freq[j]);
     }
+    
+    //-------------------- add CFC function ---------------------------/
+    GetPropF1("modeset.%d.txcfc_preGain", i,          mode_settings[i].txcfc_preGain);
+    GetPropF1("modeset.%d.txcfc_postGain", i,         mode_settings[i].txcfc_postGain);
+    GetPropI1("modeset.%d.txcfc_pre_enable", i,       mode_settings[i].txcfc_pre_enable);
+    GetPropI1("modeset.%d.txcfc_post_enable", i,      mode_settings[i].txcfc_post_enable);
+    
+    for (int j = 0; j < 10; j++) {
+      GetPropF2("modeset.%d.txcfc_EQfrq.%d", i, j,            mode_settings[i].txcfc_EQfrq[j]);
+      GetPropF2("modeset.%d.txcfc_preEQlevel.%d", i, j,       mode_settings[i].txcfc_preEQlevel[j]);
+      GetPropF2("modeset.%d.txcfc_postEQlevel.%d", i, j,      mode_settings[i].txcfc_postEQlevel[j]);
+    }
+
+    GetPropI1("modeset.%d.LevAttack", i,              mode_settings[i].LevAttack);
+    GetPropI1("modeset.%d.LevDecay", i,               mode_settings[i].LevDecay);
+    GetPropF1("modeset.%d.LevGain", i,                mode_settings[i].LevGain);
+    //-----------------------------------------------------------------/ 
+
   }
 }
 
@@ -535,6 +616,24 @@ void vfo_apply_mode_settings(RECEIVER *rx) {
       transmitter->eq_freq[i] = mode_settings[m].tx_eq_freq[i];
     }
 
+    //-------------------- add CFC function ---------------------------/
+    transmitter->txcfc_pre_enable = mode_settings[m].txcfc_pre_enable;
+    transmitter->txcfc_post_enable = mode_settings[m].txcfc_post_enable;
+
+    for (int i = 0; i < 10; i++) {
+      transmitter->txcfc_EQfrq[i] = mode_settings[m].txcfc_EQfrq[i];
+      transmitter->txcfc_preEQlevel[i] = mode_settings[m].txcfc_preEQlevel[i];
+      transmitter->txcfc_postEQlevel[i] = mode_settings[m].txcfc_postEQlevel[i];
+    }
+
+    transmitter->txcfc_preGain = mode_settings[m].txcfc_preGain;
+    transmitter->txcfc_postGain = mode_settings[m].txcfc_postGain;
+
+    transmitter->LevAttack = mode_settings[m].LevAttack;
+    transmitter->LevDecay = mode_settings[m].LevDecay;
+    transmitter->LevGain = mode_settings[m].LevGain;
+    //-----------------------------------------------------------------/ 
+   
     transmitter->compressor = mode_settings[m].compressor;
     transmitter->compressor_level = mode_settings[m].compressor_level;
     tx_set_compressor(transmitter);
