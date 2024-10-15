@@ -2125,16 +2125,16 @@ SetTXACFCOMPPrecomp(tx->id, tx->txcfc_preGain);
 // set pre-defined post-amp level in db for CFC
 SetTXACFCOMPPrePeq(tx->id, tx->txcfc_postGain);
 // fire up the CFC pre-compressor only if TX-EQ enabled
-SetTXACFCOMPRun(tx->id, tx->eq_enable);
+SetTXACFCOMPRun(tx->id, tx->txcfc_pre_enable);
 // fire up the CFC post-compressor only if TX-EQ enabled
-SetTXACFCOMPPeqRun(tx->id, tx->eq_enable);
+SetTXACFCOMPPeqRun(tx->id, tx->txcfc_post_enable);
 
 // debug output
 for (int i = 0; i < 10; i++) {
       t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, tx->txcfc_EQfrq[i], tx->txcfc_preEQlevel[i], tx->txcfc_postEQlevel[i]);
     }
       t_print("%s: CFC-EQ with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->txcfc_preGain, tx->txcfc_postGain);
-      t_print("%s: CFC-EQ state: %d\n", __FUNCTION__, tx->eq_enable);
+      t_print("%s: CFC-EQ pre-state: %d post-state %d\n", __FUNCTION__, tx->txcfc_pre_enable, tx->txcfc_post_enable);
 }
 //-----------------------------------------------------------------/
 

@@ -47,6 +47,8 @@ static GtkWidget *freqspin[11];
 static gulong freq_signal_id[11];
 static GtkWidget *enable_b;
 static GtkWidget *tenband_b;
+static GtkWidget *precfc_enable_b;
+static GtkWidget *postcfc_enable_b;
 
 static int eqid = 0;      // 0: RX1, 1: RX2, 2: TX
 static int have_tenband;  // 0: four-band on display, 1: ten-band on display
@@ -160,6 +162,21 @@ static void enable_cb (GtkWidget *widget, gpointer data) {
     break;
   }
 
+  update_eq();
+  g_idle_add(ext_vfo_update, NULL);
+}
+
+//
+static void precfc_enable_cb (GtkWidget *widget, gpointer data) {
+  int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  transmitter->txcfc_pre_enable = val;
+  update_eq();
+  g_idle_add(ext_vfo_update, NULL);
+}
+
+static void postcfc_enable_cb (GtkWidget *widget, gpointer data) {
+  int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+  transmitter->txcfc_post_enable = val;
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }
@@ -298,6 +315,7 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
 
     have_tenband = receiver[eqid]->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), receiver[eqid]->eq_enable);
+
     break;
 
   case 2:
@@ -313,6 +331,7 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
 
     have_tenband = transmitter->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->eq_enable);
+
     break;
   }
 
@@ -358,6 +377,14 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_widget_set_name(close_b, "close_button");
   g_signal_connect (close_b, "button-press-event", G_CALLBACK(close_cb), NULL);
   gtk_grid_attach(GTK_GRID(grid), close_b, 0, 0, 1, 1);
+  //
+  precfc_enable_b = gtk_check_button_new_with_label("Pre CFC");
+  gtk_widget_set_name(precfc_enable_b, "boldlabel");
+  gtk_grid_attach(GTK_GRID(grid), precfc_enable_b, 1, 0, 1, 1);
+  postcfc_enable_b = gtk_check_button_new_with_label("Post CFC");
+  gtk_widget_set_name(postcfc_enable_b, "boldlabel");
+  gtk_grid_attach(GTK_GRID(grid), postcfc_enable_b, 2, 0, 1, 1);
+  //
   GtkWidget *eqid_combo_box = gtk_combo_box_text_new();
   gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX1 Eq Settings");
   gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX2 Eq Settings");
@@ -372,6 +399,12 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_widget_set_name(tenband_b, "boldlabel");
   gtk_grid_attach(GTK_GRID(grid), tenband_b, 1, 1, 1, 1);
 
+  //
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (precfc_enable_b), transmitter->txcfc_pre_enable);
+  g_signal_connect(precfc_enable_b, "toggled", G_CALLBACK(precfc_enable_cb), GINT_TO_POINTER(0));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (postcfc_enable_b), transmitter->txcfc_post_enable);
+  g_signal_connect(postcfc_enable_b, "toggled", G_CALLBACK(postcfc_enable_cb), GINT_TO_POINTER(0));
+  
   for (int i = 0; i < 11; i++) {
     if (i == 0) {
       GtkWidget *label = gtk_label_new("Preamp  ");
