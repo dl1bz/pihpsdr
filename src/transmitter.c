@@ -2108,10 +2108,12 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   SetTXAEQProfile(tx->id, nfreq, tx->eq_freq, tx->eq_gain);
   SetTXAEQRun(tx->id, tx->eq_enable);
 
+#ifdef DEBUG
   // debug output
   for (int i = 1; i < nfreq+1; i++) {
     t_print("%s: TX-EQ[%d] setting %.1fHz with %.1fdb\n", __FUNCTION__, i,tx->eq_freq[i], tx->eq_gain[i]);
   }
+#endif
     t_print("%s: TX-EQ Gain: %.1fdb, Mic Gain: %.1f\n", __FUNCTION__, tx->eq_gain[0], tx->mic_gain);
     t_print("%s: TX-EQ state: %d\n", __FUNCTION__, tx->eq_enable);  
 }
@@ -2129,10 +2131,12 @@ SetTXACFCOMPRun(tx->id, tx->txcfc_pre_enable);
 // fire up the CFC post-compressor only if TX-EQ enabled
 SetTXACFCOMPPeqRun(tx->id, tx->txcfc_post_enable);
 
+#ifdef DEBUG
 // debug output
 for (int i = 0; i < 10; i++) {
       t_print("%s: CFC-EQ[%d] setting %.1fHz with pre-gain %.1fdb, post-gain %.1fdb\n", __FUNCTION__, i, tx->txcfc_EQfrq[i], tx->txcfc_preEQlevel[i], tx->txcfc_postEQlevel[i]);
     }
+#endif
       t_print("%s: CFC-EQ with preGain=%.1fdb postGain=%.1fdb\n", __FUNCTION__, tx->txcfc_preGain, tx->txcfc_postGain);
       t_print("%s: CFC-EQ pre-state: %d post-state %d\n", __FUNCTION__, tx->txcfc_pre_enable, tx->txcfc_post_enable);
 }
