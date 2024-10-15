@@ -316,6 +316,9 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
     have_tenband = receiver[eqid]->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), receiver[eqid]->eq_enable);
 
+    gtk_widget_hide(precfc_enable_b);
+    gtk_widget_hide(postcfc_enable_b);
+
     break;
 
   case 2:
@@ -331,6 +334,9 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
 
     have_tenband = transmitter->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->eq_enable);
+
+    gtk_widget_show (precfc_enable_b);
+    gtk_widget_show (postcfc_enable_b);
 
     break;
   }
@@ -404,7 +410,7 @@ void equalizer_menu(GtkWidget *parent) {
   g_signal_connect(precfc_enable_b, "toggled", G_CALLBACK(precfc_enable_cb), GINT_TO_POINTER(0));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (postcfc_enable_b), transmitter->txcfc_post_enable);
   g_signal_connect(postcfc_enable_b, "toggled", G_CALLBACK(postcfc_enable_cb), GINT_TO_POINTER(0));
-  
+
   for (int i = 0; i < 11; i++) {
     if (i == 0) {
       GtkWidget *label = gtk_label_new("Preamp  ");
@@ -447,6 +453,7 @@ void equalizer_menu(GtkWidget *parent) {
   // Depending on the value of eqid, set spinbuttons, scales, etc.
   // and connect the signals
   //
+
   switch (eqid) {
   case 0:
   case 1:
@@ -491,6 +498,16 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_container_add(GTK_CONTAINER(content), grid);
   sub_menu = dialog;
   gtk_widget_show_all(dialog);
+
+    switch (eqid) {
+    case 0:
+    case 1:
+      gtk_widget_hide(precfc_enable_b);
+      gtk_widget_hide(postcfc_enable_b);
+      break;
+    case 2:
+      break;
+    }
 
   if (!have_tenband) {
     for (int i = 5; i < 11; i++) {
