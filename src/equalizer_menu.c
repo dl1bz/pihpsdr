@@ -499,15 +499,10 @@ void equalizer_menu(GtkWidget *parent) {
   sub_menu = dialog;
   gtk_widget_show_all(dialog);
 
-    switch (eqid) {
-    case 0:
-    case 1:
-      gtk_widget_hide(precfc_enable_b);
-      gtk_widget_hide(postcfc_enable_b);
-      break;
-    case 2:
-      break;
-    }
+      if (eqid < 2) {
+        gtk_widget_hide(precfc_enable_b);
+        gtk_widget_hide(postcfc_enable_b);
+      }
 
   if (!have_tenband) {
     for (int i = 5; i < 11; i++) {
