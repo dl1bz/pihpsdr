@@ -82,7 +82,7 @@ void about_menu(GtkWidget *parent) {
            //"    Johan Maas, PA3GSB: RadioBerry support\n"
            "    Ken Hopper, N9VV: Testing and Documentation\n"
            "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI\n"
-           "    Heiko Amft, DL1BZ: add CFC support \n\n"
+           "    Heiko Amft, DL1BZ: CFC support \n\n"
            "Build date: %s (commit %s)\n"
            "Build version: %s\n"
            "WDSP version: %d.%02d\n\n",
