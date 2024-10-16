@@ -47,13 +47,17 @@ static GtkWidget *freqspin[11];
 static gulong freq_signal_id[11];
 static GtkWidget *enable_b;
 static GtkWidget *tenband_b;
+static GtkWidget *label;
+/*
 // add by DL1BZ
 static GtkWidget *precfc_enable_b;
 static GtkWidget *postcfc_enable_b;
 // end add
+*/
 static int eqid = 0;      // 0: RX1, 1: RX2, 2: TX
 static int have_tenband;  // 0: four-band on display, 1: ten-band on display
 
+//---------------------------------------------------------------------------------------------------
 static void cleanup() {
   if (dialog != NULL) {
     GtkWidget *tmp = dialog;
@@ -64,12 +68,16 @@ static void cleanup() {
     radio_save_state();
   }
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 static gboolean close_cb () {
   cleanup();
   return TRUE;
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 void update_eq() {
   if (radio_is_remote) {
     //
@@ -89,7 +97,9 @@ void update_eq() {
     }
   }
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 static void tenband_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 
@@ -135,7 +145,9 @@ static void tenband_cb (GtkWidget *widget, gpointer data) {
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 static void enable_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 
@@ -163,12 +175,35 @@ static void enable_cb (GtkWidget *widget, gpointer data) {
     }
 
     break;
+  case 3:
+    if (can_transmit) {
+      int mode = vfo[vfo_get_tx_vfo()].mode;
+      transmitter->txcfc_pre_enable = val;
+      mode_settings[mode].txcfc_pre_enable = val;
+      copy_mode_settings(mode);
+    }
+
+    break;
+
+  case 4:
+    if (can_transmit) {
+      int mode = vfo[vfo_get_tx_vfo()].mode;
+      transmitter->txcfc_post_enable = val;
+      mode_settings[mode].txcfc_post_enable = val;
+      copy_mode_settings(mode);
+    }
+
+    break;
+
   }
 
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }
+//---------------------------------------------------------------------------------------------------
 
+/*
+//---------------------------------------------------------------------------------------------------
 // add by DL1BZ
 static void precfc_enable_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
@@ -179,7 +214,9 @@ static void precfc_enable_cb (GtkWidget *widget, gpointer data) {
   update_eq();
   g_idle_add(ext_vfo_update, NULL);
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 static void postcfc_enable_cb (GtkWidget *widget, gpointer data) {
   int val = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
   int mode = vfo[vfo_get_tx_vfo()].mode;
@@ -190,7 +227,10 @@ static void postcfc_enable_cb (GtkWidget *widget, gpointer data) {
   g_idle_add(ext_vfo_update, NULL);
 }
 //end add
+//---------------------------------------------------------------------------------------------------
+*/
 
+//---------------------------------------------------------------------------------------------------
 static void freq_changed_cb (GtkWidget *widget, gpointer data) {
   int i = GPOINTER_TO_INT(data);
   double val = gtk_spin_button_get_value(GTK_SPIN_BUTTON(widget));
@@ -261,8 +301,9 @@ static void freq_changed_cb (GtkWidget *widget, gpointer data) {
 
   update_eq();
 }
+//---------------------------------------------------------------------------------------------------
 
-
+//---------------------------------------------------------------------------------------------------
 static void gain_changed_cb (GtkWidget *widget, gpointer data) {
   int i = GPOINTER_TO_INT(data);
   double val = gtk_range_get_value(GTK_RANGE(widget));
@@ -295,8 +336,9 @@ static void gain_changed_cb (GtkWidget *widget, gpointer data) {
 
   update_eq();
 }
+//---------------------------------------------------------------------------------------------------
 
-//
+//---------------------------------------------------------------------------------------------------
 // If RX2 is selected while only one RX is running, or if TX
 // is selected but there is no transmitter, silently force
 // the combo box back to RX1
@@ -313,6 +355,8 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
   switch (eqid) {
   case 0:
   case 1:
+    gtk_widget_show(label);
+    gtk_widget_show(tenband_b);
     for (int i = 0; i < 11; i++) {
       gtk_range_set_value(GTK_RANGE(scale[i]), receiver[eqid]->eq_gain[i]);
     }
@@ -325,13 +369,17 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
 
     have_tenband = receiver[eqid]->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), receiver[eqid]->eq_enable);
+    /*
     //add
     gtk_widget_hide(precfc_enable_b);
     gtk_widget_hide(postcfc_enable_b);
     //end add
+    */
     break;
 
   case 2:
+    gtk_widget_show(label);
+    gtk_widget_show(tenband_b);
     for (int i = 0; i < 11; i++) {
       gtk_range_set_value(GTK_RANGE(scale[i]), transmitter->eq_gain[i]);
     }
@@ -344,28 +392,54 @@ static void eqid_changed_cb(GtkWidget *widget, gpointer data) {
 
     have_tenband = transmitter->eq_tenband;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->eq_enable);
+    /*
     // add by DL1BZ
     gtk_widget_show (precfc_enable_b);
     gtk_widget_show (postcfc_enable_b);
     // end add
+    */
+    break;
+
+    case 3:
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->txcfc_pre_enable);
+      for (int i = 0; i < 11; i++) {
+        gtk_widget_hide(freqspin[i]);
+        gtk_widget_hide(scale   [i]);
+        gtk_widget_hide(tenband_b);
+        gtk_widget_hide(label);
+      }
+    break;
+
+    case 4:
+      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->txcfc_post_enable);
+    for (int i = 0; i < 11; i++) {
+      gtk_widget_hide(freqspin[i]);
+      gtk_widget_hide(scale   [i]);
+      gtk_widget_hide(tenband_b);
+      gtk_widget_hide(label);
+    }
     break;
   }
 
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tenband_b), have_tenband);
+  if (eqid < 3) {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (tenband_b), have_tenband);
 
-  if (have_tenband) {
-    for (int i = 5; i < 11; i++) {
-      gtk_widget_show(freqspin[i]);
-      gtk_widget_show(scale   [i]);
-    }
-  } else {
-    for (int i = 5; i < 11; i++) {
-      gtk_widget_hide(freqspin[i]);
-      gtk_widget_hide(scale   [i]);
+    if (have_tenband) {
+      for (int i = 0; i < 11; i++) {
+        gtk_widget_show(freqspin[i]);
+        gtk_widget_show(scale   [i]);
+      }
+    } else {
+      for (int i = 0; i < 11; i++) {
+        gtk_widget_hide(freqspin[i]);
+        gtk_widget_hide(scale   [i]);
+      }
     }
   }
 }
+//---------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------
 void equalizer_menu(GtkWidget *parent) {
   //
   // Start the menu with the "old" eqid, but if it refers to RX2 and
@@ -393,6 +467,7 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_widget_set_name(close_b, "close_button");
   g_signal_connect (close_b, "button-press-event", G_CALLBACK(close_cb), NULL);
   gtk_grid_attach(GTK_GRID(grid), close_b, 0, 0, 1, 1);
+  /*
   // add by DL1BZ
   precfc_enable_b = gtk_check_button_new_with_label("Pre CFC");
   gtk_widget_set_name(precfc_enable_b, "boldlabel");
@@ -401,10 +476,13 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_widget_set_name(postcfc_enable_b, "boldlabel");
   gtk_grid_attach(GTK_GRID(grid), postcfc_enable_b, 2, 0, 1, 1);
   // end add
+  */
   GtkWidget *eqid_combo_box = gtk_combo_box_text_new();
-  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX1 Eq Settings");
-  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX2 Eq Settings");
-  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "TX  Eq Settings");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX1 EQ Settings");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "RX2 EQ Settings");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "TX EQ Settings");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "Pre CFC Settings");
+  gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(eqid_combo_box), NULL, "Post CFC Settings");
   gtk_combo_box_set_active(GTK_COMBO_BOX(eqid_combo_box), eqid);
   my_combo_attach(GTK_GRID(grid), eqid_combo_box, 2, 1, 1, 1);
   g_signal_connect(eqid_combo_box, "changed", G_CALLBACK(eqid_changed_cb), NULL);
@@ -414,16 +492,20 @@ void equalizer_menu(GtkWidget *parent) {
   tenband_b = gtk_check_button_new_with_label("Ten Bands");
   gtk_widget_set_name(tenband_b, "boldlabel");
   gtk_grid_attach(GTK_GRID(grid), tenband_b, 1, 1, 1, 1);
+ 
+  /*
   // add by DL1BZ
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (precfc_enable_b), transmitter->txcfc_pre_enable);
   g_signal_connect(precfc_enable_b, "toggled", G_CALLBACK(precfc_enable_cb), GINT_TO_POINTER(0));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (postcfc_enable_b), transmitter->txcfc_post_enable);
   g_signal_connect(postcfc_enable_b, "toggled", G_CALLBACK(postcfc_enable_cb), GINT_TO_POINTER(0));
   //end add
+  */
 
   for (int i = 0; i < 11; i++) {
     if (i == 0) {
-      GtkWidget *label = gtk_label_new("Preamp  ");
+      // GtkWidget *label = gtk_label_new("Preamp  ");
+      label = gtk_label_new("Preamp  ");
       gtk_widget_set_name(label, "boldlabel");
       gtk_widget_set_halign(label, GTK_ALIGN_START);
       gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 2);
@@ -503,22 +585,45 @@ void equalizer_menu(GtkWidget *parent) {
     }
 
     break;
+
+    case 3:
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->txcfc_pre_enable);
+    g_signal_connect(enable_b, "toggled", G_CALLBACK(enable_cb), GINT_TO_POINTER(0));
+
+    break;
+
+    case 4:
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (enable_b), transmitter->txcfc_post_enable);
+    g_signal_connect(enable_b, "toggled", G_CALLBACK(enable_cb), GINT_TO_POINTER(0));
+
+    break;
   }
 
   gtk_container_add(GTK_CONTAINER(content), grid);
   sub_menu = dialog;
   gtk_widget_show_all(dialog);
+      /*
       // add by DL1BZ
       if (eqid < 2) {
         gtk_widget_hide(precfc_enable_b);
         gtk_widget_hide(postcfc_enable_b);
       }
       // end add
+      */
 
   if (!have_tenband) {
     for (int i = 5; i < 11; i++) {
       gtk_widget_hide(freqspin[i]);
       gtk_widget_hide(scale   [i]);
+    }
+  }
+
+  if (eqid > 2) {
+    for (int i = 0; i < 11; i++) {
+      gtk_widget_hide(freqspin[i]);
+      gtk_widget_hide(scale   [i]);
+      gtk_widget_hide(tenband_b);
+      gtk_widget_hide(label);
     }
   }
 
@@ -531,3 +636,4 @@ void equalizer_menu(GtkWidget *parent) {
   gtk_window_get_position(GTK_WINDOW(top_window), &x_pos, &y_pos);
   gtk_window_move(GTK_WINDOW(dialog), x_pos, y_pos);
 }
+//---------------------------------------------------------------------------------------------------
