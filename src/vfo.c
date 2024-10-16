@@ -229,8 +229,8 @@ static void modesettingsRestoreState() {
 #endif
     mode_settings[i].en_rxeq = 0;
     mode_settings[i].en_txeq = 0;
-    mode_settings[i].rx_eq_tenband = 0;
-    mode_settings[i].tx_eq_tenband = 0;
+    mode_settings[i].rx_eq_tenband = 1;
+    mode_settings[i].tx_eq_tenband = 1;
 
     for (int j = 0; j < 11; j++) {
       mode_settings[i].tx_eq_gain[j] = 0;

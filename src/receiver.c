@@ -790,7 +790,7 @@ RECEIVER *rx_create_receiver(int id, int pixels, int width, int height) {
   rx->zoom = 1;
   rx->pan = 0;
   rx->eq_enable = 0;
-  rx->eq_tenband  = 0;
+  rx->eq_tenband  = 1;
   rx->eq_freq[0]  =     0.0;
   rx->eq_freq[1]  =   200.0;
   rx->eq_freq[2]  =   500.0;
