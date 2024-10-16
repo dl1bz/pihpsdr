@@ -60,6 +60,8 @@
 #define min(x,y) (x<y?x:y)
 #define max(x,y) (x<y?y:x)
 
+// #define DEBUG
+
 //
 // CW pulses are timed by the heart-beat of the mic samples.
 // Other parts of the program may produce CW RF pulses by manipulating

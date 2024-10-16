@@ -1,3 +1,4 @@
+- CFC integration completed, you can found the CFC in Menu > EQ & CFC, select Pre-CFC or Post-CFC in the EQ pull-down menu
 - code rework for simliar code design like original code, prepare full implementation in GUI
 - activation of Pre-CFC and Post-CFC are possible at the GUI and now located at Menu > Equalizer > TX EQ settings
 - add comments to my additional settings for CFC and add more debug output for checking the used values in TX-EQ,

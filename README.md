@@ -3,10 +3,15 @@
 CFC patch by DL1BZ
 
 This is a modified version by DL1BZ of pihpsdr and is forked from https://github.com/dl1ycf/pihpsdr<br>
-Its activated the CFC function from the WDSP library in piHPSDR.
+Its activated the CFC function from the WDSP library in piHPSDR as similar known with Thetis/PowerSDR.
 
-The CFC configuration profile is only hard-coded in the src/transmitter.c, no access from GUI at this time.<br>
-You can now activate the Pre-CFC and Post-CFC separatly in the Menu > Equalizer > TX EQ settings.<br>
+You can now activate the Pre-CFC and Post-CFC separatly in the Menu > EQ & CFC (I renamed this button, 
+earlier it was known es Equalizer).<br>
+
+The both CFC parts, Pre-CFC and Post-CFC are using the same defined frequencies, so you can change these values either at the Pre-CFC side
+or at the Post-CFC side, this will be syncronized, because the CFC function has only ONE definition of frequencies for both (pre and post).<br>
+But you can activate both CFC parts individually with own level settings.
+
 The CFC is part of the WDSP library, but up to my patch piHPSDR don't use it.<br>
 It's a pity, because this is a very good improvment for better SSB TX audio.<br>
 For understand: CFC = Continuous Frequency Compressor = Multiband-Compressor, which can selective compress different AF frequencies more or less.
