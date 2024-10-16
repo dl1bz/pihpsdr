@@ -658,7 +658,7 @@ void new_menu() {
     g_signal_connect (dsp_b, "button-press-event", G_CALLBACK(dsp_cb), NULL);
     gtk_grid_attach(GTK_GRID(grid), dsp_b, col, row, 1, 1);
     row++;
-    GtkWidget *equalizer_b = gtk_button_new_with_label("Equalizer");
+    GtkWidget *equalizer_b = gtk_button_new_with_label("EQ & CFC");
     g_signal_connect (equalizer_b, "button-press-event", G_CALLBACK(equalizer_cb), NULL);
     gtk_grid_attach(GTK_GRID(grid), equalizer_b, col, row, 1, 1);
     row++;
