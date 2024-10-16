@@ -82,6 +82,7 @@
   #include "saturnmain.h"
   #include "saturnserver.h"
 #endif
+#include "version.h"
 #include "mystring.h"
 
 #define min(x,y) (x<y?x:y)
@@ -1165,7 +1166,7 @@ void radio_start_radio() {
   switch (protocol) {
   case ORIGINAL_PROTOCOL:
     STRLCPY(p, "Protocol 1", 32);
-    snprintf(version, 32, "v%d.%d)",
+    snprintf(version, 32, "v%d.%d",
              radio->software_version / 10,
              radio->software_version % 10);
     snprintf(ip, 32, "%s", inet_ntoa(radio->info.network.address.sin_addr));
@@ -1174,7 +1175,7 @@ void radio_start_radio() {
 
   case NEW_PROTOCOL:
     STRLCPY(p, "Protocol 2", 32);
-    snprintf(version, 32, "v%d.%d)",
+    snprintf(version, 32, "v%d.%d",
              radio->software_version / 10,
              radio->software_version % 10);
     snprintf(ip, 32, "%s", inet_ntoa(radio->info.network.address.sin_addr));
@@ -1227,18 +1228,30 @@ void radio_start_radio() {
       // it does not fit  in windows 640 pixels wide.
       // if needed, the MAC address of the radio can be
       // found in the ABOUT menu.
+      // execpt if running under macOS
+      #if defined ( __APPLE__ )
+      snprintf(text, 1024, "piHPSDR %s: %s (%s %s) %s on %s",
+               build_version,
+               radio->name,
+               p,
+               version,
+               ip,
+               iface);
+      #else
       snprintf(text, 1024, "piHPSDR: %s (%s %s) %s on %s",
                radio->name,
                p,
                version,
                ip,
                iface);
+      #endif
     }
 
     break;
 
   case SOAPYSDR_PROTOCOL:
-    snprintf(text, 1024, "piHPSDR: %s (%s %s)",
+    snprintf(text, 1024, "piHPSDR %s: %s (%s %s)",
+             build_version,
              radio->name,
              p,
              version);
