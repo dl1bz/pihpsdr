@@ -86,11 +86,11 @@ void about_menu(GtkWidget *parent) {
            "    Ken Hopper, N9VV: Testing and Documentation\n"
            "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI\n"
            "    Heiko Amft, DL1BZ: CFC support \n\n"
-           "System: %s @ %s\n"
+           "Build system: %s %s @ %s\n"
            "Build date: %s (commit %s)\n"
            "Build version: %s\n"
            "WDSP version: %d.%02d\n\n",
-           unameData.sysname, unameData.machine, build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
+           unameData.sysname, unameData.release, unameData.machine, build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
 
   switch (radio->protocol) {
   case ORIGINAL_PROTOCOL:
