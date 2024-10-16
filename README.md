@@ -6,7 +6,7 @@ This is a modified version by DL1BZ of pihpsdr and is forked from https://github
 Its activated the CFC function from the WDSP library in piHPSDR as similar known with Thetis/PowerSDR.
 
 You can now activate the Pre-CFC and Post-CFC separatly in the Menu > EQ & CFC (I renamed this button, 
-earlier it was known es Equalizer).<br>
+earlier it was known as Equalizer).<br>
 
 The both CFC parts, Pre-CFC and Post-CFC are using the same defined frequencies, so you can change these values either at the Pre-CFC side
 or at the Post-CFC side, this will be syncronized, because the CFC function has only ONE definition of frequencies for both (pre and post).<br>

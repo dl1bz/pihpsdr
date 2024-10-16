@@ -1,9 +1,9 @@
+October, 16th 2024:
 - CFC integration completed, you can found the CFC in Menu > EQ & CFC, select Pre-CFC or Post-CFC in the EQ pull-down menu
-- code rework for simliar code design like original code, prepare full implementation in GUI
+- code rework for simliar code design like original code
 - activation of Pre-CFC and Post-CFC are possible at the GUI and now located at Menu > Equalizer > TX EQ settings
 - add comments to my additional settings for CFC and add more debug output for checking the used values in TX-EQ,
   CFC, Leveler and Baseband-Compressor in the STDOUT file
-- add CFC as hard-coded patch in the transmitter.c, all values adapted from my Thetis
 - change Limiter level from 6db to 15db if using CFC, can be adjusted by yourself
 - cleanup the MacOS/libinstall.sh for macOS, because the Pothosware SOAPY modules don't exist anymore as casks
   in Homebrew for macOS (known issue, all modules con't compile with macOS 14.x)
