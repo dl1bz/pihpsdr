@@ -319,7 +319,7 @@ static int init(void *data) {
 }
 
 static void activate_pihpsdr(GtkApplication *app, gpointer data) {
-  char text[256];
+  char text[384];
   t_print("Build: %s (Commit: %s, Date: %s)\n", build_version, build_commit, build_date);
   t_print("GTK+ version %u.%u.%u\n", gtk_major_version, gtk_minor_version, gtk_micro_version);
   uname(&unameData);
@@ -463,13 +463,13 @@ static void activate_pihpsdr(GtkApplication *app, gpointer data) {
   t_print("add image to grid\n");
   gtk_grid_attach(GTK_GRID(topgrid), image, 0, 0, 1, 2);
   t_print("create pi label\n");
-  GtkWidget *pi_label = gtk_label_new("piHPSDR by John Melton G0ORX/N6LYT\n\nforked from DL1YCF's piHPSDR repository\nw/ CFC patch by DL1BZ\n");
+  GtkWidget *pi_label = gtk_label_new("\npiHPSDR by John Melton G0ORX/N6LYT\n");
   gtk_widget_set_name(pi_label, "big_txt");
   gtk_widget_set_halign(pi_label, GTK_ALIGN_START);
   t_print("add pi label to grid\n");
   gtk_grid_attach(GTK_GRID(topgrid), pi_label, 1, 0, 3, 1);
   t_print("create build label\n");
-  snprintf(text, 256, "Built %s, Version %s\n\nOptions: %s\nAudio module: %s",
+  snprintf(text, 384, "forked from DL1YCF's master branch of piHPSDR repository\nw/ CFC patch by DL1BZ\n\nBuilt %s, Version %s\n\nOptions: %s\nAudio module: %s",
            build_date, build_version, build_options, build_audio);
   GtkWidget *build_date_label = gtk_label_new(text);
   gtk_widget_set_name(build_date_label, "med_txt");

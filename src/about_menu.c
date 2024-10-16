@@ -33,6 +33,8 @@
 #include "version.h"
 #include "mystring.h"
 
+struct utsname unameData;
+
 static GtkWidget *dialog = NULL;
 static GtkWidget *label;
 
@@ -58,6 +60,7 @@ void about_menu(GtkWidget *parent) {
   dialog = gtk_dialog_new();
   gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(parent));
   char title[64];
+  uname(&unameData);
   snprintf(title, 64, "piHPSDR - About");
   GtkWidget *headerbar = gtk_header_bar_new();
   gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbar);
@@ -83,10 +86,11 @@ void about_menu(GtkWidget *parent) {
            "    Ken Hopper, N9VV: Testing and Documentation\n"
            "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI\n"
            "    Heiko Amft, DL1BZ: CFC support \n\n"
+           "System: %s @ %s\n"
            "Build date: %s (commit %s)\n"
            "Build version: %s\n"
            "WDSP version: %d.%02d\n\n",
-           build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
+           unameData.sysname, unameData.machine, build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
 
   switch (radio->protocol) {
   case ORIGINAL_PROTOCOL:
