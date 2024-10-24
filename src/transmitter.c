@@ -374,6 +374,11 @@ void tx_save_state(const TRANSMITTER *tx) {
     SetPropF2("transmitter.%d.cfc_lvl[%d]",     tx->id, i,            tx->cfc_lvl[i]);
     SetPropF2("transmitter.%d.cfc_post[%d]",    tx->id, i,            tx->cfc_post[i]);
   }
+
+  SetPropI1("transmitter.%d.lev_attack",        tx->id,               tx->lev_attack);
+  SetPropI1("transmitter.%d.lev_decay",         tx->id,               tx->lev_decay);
+  SetPropF1("transmitter.%d.lev_gain",          tx->id,               tx->lev_gain);
+  SetPropI1("transmitter.%d.lev_enable",        tx->id,               tx->lev_enable);
 }
 
 static void tx_restore_state(TRANSMITTER *tx) {
@@ -444,6 +449,11 @@ static void tx_restore_state(TRANSMITTER *tx) {
     GetPropF2("transmitter.%d.cfc_lvl[%d]",     tx->id, i,            tx->cfc_lvl[i]);
     GetPropF2("transmitter.%d.cfc_post[%d]",    tx->id, i,            tx->cfc_post[i]);
   }
+
+  GetPropI1("transmitter.%d.lev_attack",        tx->id,               tx->lev_attack);
+  GetPropI1("transmitter.%d.lev_decay",         tx->id,               tx->lev_decay);
+  GetPropF1("transmitter.%d.lev_gain",          tx->id,               tx->lev_gain);
+  GetPropI1("transmitter.%d.lev_enable",        tx->id,               tx->lev_enable);
 }
 
 static double compute_power(double p) {
@@ -919,32 +929,32 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->drive_iscal = 1.0;
   tx->do_scale = 0;
   tx->compressor = 0;
-  tx->compressor_level = 0.0;
+  tx->compressor_level = 4.0;
   tx->cfc              =       0;
   tx->cfc_eq           =       0;
   tx->cfc_freq[ 0]     =     0.0;  // Not used
   tx->cfc_freq[ 1]     =    50.0;
-  tx->cfc_freq[ 2]     =   100.0;
-  tx->cfc_freq[ 3]     =   200.0;
+  tx->cfc_freq[ 2]     =   150.0;
+  tx->cfc_freq[ 3]     =   300.0;
   tx->cfc_freq[ 4]     =   500.0;
-  tx->cfc_freq[ 5]     =  1000.0;
-  tx->cfc_freq[ 6]     =  1500.0;
-  tx->cfc_freq[ 7]     =  2500.0;
-  tx->cfc_freq[ 8]     =  3000.0;
-  tx->cfc_freq[ 9]     =  5000.0;
-  tx->cfc_freq[10]     =  8000.0;
-  tx->cfc_lvl [ 0]     =     0.0;    // freq independent part
+  tx->cfc_freq[ 5]     =   750.0;
+  tx->cfc_freq[ 6]     =  1250.0;
+  tx->cfc_freq[ 7]     =  1750.0;
+  tx->cfc_freq[ 8]     =  2300.0;
+  tx->cfc_freq[ 9]     =  2800.0;
+  tx->cfc_freq[10]     =  3100.0;
+  tx->cfc_lvl [ 0]     =     3.0;    // freq independent part
   tx->cfc_lvl [ 1]     =     0.0;
   tx->cfc_lvl [ 2]     =     0.0;
-  tx->cfc_lvl [ 3]     =     0.0;
-  tx->cfc_lvl [ 4]     =     0.0;
-  tx->cfc_lvl [ 5]     =     0.0;
-  tx->cfc_lvl [ 6]     =     0.0;
-  tx->cfc_lvl [ 7]     =     0.0;
-  tx->cfc_lvl [ 8]     =     0.0;
-  tx->cfc_lvl [ 9]     =     0.0;
-  tx->cfc_lvl [10]     =     0.0;
-  tx->cfc_post[ 0]     =     0.0;    // freq independent part
+  tx->cfc_lvl [ 3]     =     3.0;
+  tx->cfc_lvl [ 4]     =     3.0;
+  tx->cfc_lvl [ 5]     =     3.0;
+  tx->cfc_lvl [ 6]     =     6.0;
+  tx->cfc_lvl [ 7]     =     6.0;
+  tx->cfc_lvl [ 8]     =     6.0;
+  tx->cfc_lvl [ 9]     =     9.0;
+  tx->cfc_lvl [10]     =     9.0;
+  tx->cfc_post[ 0]     =    -9.0;    // freq independent part
   tx->cfc_post[ 1]     =     0.0;
   tx->cfc_post[ 2]     =     0.0;
   tx->cfc_post[ 3]     =     0.0;
@@ -966,6 +976,10 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->dexp_filter      =       0;
   tx->dexp_filter_low  =    1000;
   tx->dexp_filter_high =    2000;
+  tx->lev_gain         =    15.0;
+  tx->lev_attack       =       1;
+  tx->lev_decay        =     500;
+  tx->lev_enable       =       0;
   tx->local_microphone = 0;
   STRLCPY(tx->microphone_name, "NO MIC", 128);
   tx->dialog_x = -1;
@@ -976,28 +990,28 @@ TRANSMITTER *tx_create_transmitter(int id, int width, int height) {
   tx->swr_alarm = 3.0;     // default value for SWR protection
   tx->alc = 0.0;
   tx->eq_enable = 0;
-  tx->eq_freq[0]  =     0.0;
-  tx->eq_freq[1]  =    50.0;
-  tx->eq_freq[2]  =   100.0;
-  tx->eq_freq[3]  =   200.0;
+  tx->eq_freq[0]  =     0.0; // not used
+  tx->eq_freq[1]  =    70.0;
+  tx->eq_freq[2]  =   150.0;
+  tx->eq_freq[3]  =   300.0;
   tx->eq_freq[4]  =   500.0;
   tx->eq_freq[5]  =  1000.0;
   tx->eq_freq[6]  =  1500.0;
   tx->eq_freq[7]  =  2000.0;
   tx->eq_freq[8]  =  2500.0;
   tx->eq_freq[9]  =  3000.0;
-  tx->eq_freq[10] =  5000.0;
-  tx->eq_gain[0]  = 0.0;
-  tx->eq_gain[1]  = 0.0;
-  tx->eq_gain[2]  = 0.0;
-  tx->eq_gain[3]  = 0.0;
-  tx->eq_gain[4]  = 0.0;
+  tx->eq_freq[10] =  3500.0;
+  tx->eq_gain[0]  = 4.0;
+  tx->eq_gain[1]  = -9.0;
+  tx->eq_gain[2]  = -6.0;
+  tx->eq_gain[3]  = -6.0;
+  tx->eq_gain[4]  = -9.0;
   tx->eq_gain[5]  = 0.0;
   tx->eq_gain[6]  = 0.0;
-  tx->eq_gain[7]  = 0.0;
-  tx->eq_gain[8]  = 0.0;
-  tx->eq_gain[9]  = 0.0;
-  tx->eq_gain[10] = 0.0;
+  tx->eq_gain[7]  = 3.0;
+  tx->eq_gain[8]  = 3.0;
+  tx->eq_gain[9]  = 3.0;
+  tx->eq_gain[10] = 3.0;
   //
   // Some of these values cannot be changed.
   // If using PURESIGNAL and displaying the feedback signal,
@@ -1781,7 +1795,7 @@ void tx_set_framerate(TRANSMITTER *tx) {
 // production version.
 ////////////////////////////////////////////////////////
 
-//#define WDSPTXDEBUG
+// #define WDSPTXDEBUG
 
 void tx_close(const TRANSMITTER *tx) {
   CloseChannel(tx->id);
@@ -2125,20 +2139,36 @@ void tx_set_compressor(TRANSMITTER *tx) {
   // - if using COMP: engage CESSB overshoot control
   //
   // Run phase rotator and auto-leveler with both COMP and CRC
-  SetTXAPHROTRun(tx->id, tx->compressor || tx->cfc);
-  SetTXALevelerSt(tx->id, tx->compressor || tx->cfc);
-  SetTXALevelerAttack(tx->id, 1);
-  SetTXALevelerDecay(tx->id, 500);
-  SetTXALevelerTop(tx->id, 6.0);
+  // SetTXAPHROTRun(tx->id, tx->compressor || tx->cfc);
+  // SetTXALevelerSt(tx->id, tx->compressor || tx->cfc);
+  // SetTXALevelerAttack(tx->id, 1);
+  // SetTXALevelerDecay(tx->id, 500);
+  // SetTXALevelerTop(tx->id, 6.0);
+  SetTXALevelerAttack(tx->id, tx->lev_attack);
+  SetTXALevelerDecay(tx->id, tx->lev_decay);
+  SetTXALevelerTop(tx->id, tx->lev_gain);
+  SetTXALevelerSt(tx->id, tx->lev_enable); // Leveler on/off
+
+  SetTXAPHROTRun(tx->id, tx->cfc);  // Phase Rotator on/off
+
   SetTXACFCOMPprofile(tx->id, 10, tx->cfc_freq + 1, tx->cfc_lvl + 1, tx->cfc_post + 1);
   SetTXACFCOMPPrecomp(tx->id, tx->cfc_lvl[0]);
+  SetTXACFCOMPRun(tx->id, tx->cfc); // Pre CFC on/off
+
   SetTXACFCOMPPrePeq(tx->id, tx->cfc_post[0]);
-  SetTXACFCOMPRun(tx->id, tx->cfc);
-  SetTXACFCOMPPeqRun(tx->id, tx->cfc_eq);
+  // SetTXACFCOMPRun(tx->id, tx->cfc);
+  SetTXACFCOMPPeqRun(tx->id, tx->cfc_eq); // Post CFC on/off
+
+  t_print("%s: PROC & CESSB state: %d, PROC Gain %.1fdb, Leveler state: %d, Leveler Gain: %.1fdb\n", __FUNCTION__, tx->compressor, tx->compressor_level, tx->lev_enable, tx->lev_gain);
+
   // CESSB overshoot control used only with COMP
-  SetTXAosctrlRun(tx->id, tx->compressor);
+  // SetTXAosctrlRun(tx->id, tx->compressor);
   SetTXACompressorGain(tx->id, tx->compressor_level);
-  SetTXACompressorRun(tx->id, tx->compressor);
+  SetTXACompressorRun(tx->id, tx->compressor); // PROC on/off
+  SetTXAosctrlRun(tx->id, tx->compressor); // CESSB on/off
+
+  t_print("%s: PROC & CESSB state: %d, PROC Gain %.1fdb, Leveler state: %d, Leveler Gain: %.1fdb\n", __FUNCTION__, tx->compressor, tx->compressor_level, tx->lev_enable, tx->lev_gain);
+
 #ifdef WDSPTXDEBUG
   t_print("WDSP:TX id=%d Compressor=%d Lvl=%g CFC=%d CFC-EQ=%d AllComp=%g AllGain=%g\n",
           tx->id, tx->compressor, tx->compressor_level, tx->cfc, tx->cfc_eq,
@@ -2238,6 +2268,9 @@ void tx_set_equalizer(TRANSMITTER *tx) {
   }
 
 #endif
+
+t_print("%s: TX-EQ state: %d, Gain: %.1fdb\n", __FUNCTION__, tx->eq_enable, tx->eq_gain[0]);
+
 }
 
 void tx_set_fft_size(const TRANSMITTER *tx) {

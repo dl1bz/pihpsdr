@@ -139,6 +139,11 @@ typedef struct _transmitter {
   int    dexp_filter_low;   // low-cut of side channel filter
   int    dexp_filter_high;  // high-cut of side channel filter
 
+  double lev_gain;          // Leveler Gain
+  int    lev_attack;        // Leveler Attack
+  int    lev_decay;         // Leveler Decay
+  int    lev_enable;        // Leveler on/off
+
   double fwd;
   double rev;
   double alc;

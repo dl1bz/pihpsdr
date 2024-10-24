@@ -82,6 +82,9 @@
   #include "saturnmain.h"
   #include "saturnserver.h"
 #endif
+#ifdef __APPLE__
+  #include "version.h"
+#endif
 #include "mystring.h"
 
 #define min(x,y) (x<y?x:y)
@@ -1227,12 +1230,22 @@ void radio_start_radio() {
       // it does not fit  in windows 640 pixels wide.
       // if needed, the MAC address of the radio can be
       // found in the ABOUT menu.
+      #if defined (__APPLE__)
+      snprintf(text, 1024, "piHPSDR %s: %s (%s %s) %s on %s",
+               build_version,
+               radio->name,
+               p,
+               version,
+               ip,
+               iface);
+      #else
       snprintf(text, 1024, "piHPSDR: %s (%s %s) %s on %s",
                radio->name,
                p,
                version,
                ip,
                iface);
+      #endif
     }
 
     break;
@@ -3018,14 +3031,23 @@ void radio_start_playback() {
   int  comp   = transmitter->compressor;
   int  eq     = transmitter->eq_enable;
   double gain = transmitter->mic_gain;
+  int cfc = transmitter->cfc;
+  int cfc_eq = transmitter->cfc_eq;
+  int leveler_enable = transmitter->lev_enable;
   transmitter->eq_enable = 0;
+  transmitter->cfc = 0;
+  transmitter->cfc_eq = 0;
   transmitter->compressor = 0;
+  transmitter->lev_enable = 0;
   transmitter->mic_gain = 0.0;
   tx_set_equalizer(transmitter);
   tx_set_mic_gain(transmitter);
   tx_set_compressor(transmitter);
   transmitter->compressor = comp;
+  transmitter->lev_enable = leveler_enable;
   transmitter->eq_enable  = eq;
+  transmitter->cfc = cfc;
+  transmitter->cfc_eq = cfc_eq;
   transmitter->mic_gain = gain;
 }
 

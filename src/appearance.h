@@ -103,6 +103,8 @@
 #define COLOUR_GRAD3_WEAK    0.50, 0.50, 0.00, 1.00 // Default: 0.50, 0.50, 0.00, 1.00
 #define COLOUR_GRAD4_WEAK    0.50, 0.00, 0.00, 1.00 // Default: 0.50, 0.00, 0.00, 1.00
 
+#define COLOUR_ORANGE        1.00, 0.65, 0.00, 1.00 // orange
+
 //
 // Settings for a "black and white" spectrum (note the TX spectrum is always B&W).
 //

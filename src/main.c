@@ -170,10 +170,16 @@ gboolean keypress_cb(GtkWidget *widget, GdkEventKey *event, gpointer data) {
     break;
 
   case  GDK_KEY_d:
+  #ifdef __APPLE__
+    case  GDK_KEY_Left:
+  #endif
     vfo_step(-1);
     break;
 
   case GDK_KEY_u:
+  #ifdef __APPLE__
+    case GDK_KEY_Right:
+  #endif
     vfo_step(1);
     break;
 
@@ -463,7 +469,11 @@ static void activate_pihpsdr(GtkApplication *app, gpointer data) {
   t_print("add image to grid\n");
   gtk_grid_attach(GTK_GRID(topgrid), image, 0, 0, 1, 2);
   t_print("create pi label\n");
+  #ifdef __APPLE__
+    GtkWidget *pi_label = gtk_label_new("piHPSDR by John Melton G0ORX/N6LYT/DL1YCF");
+  #else
   GtkWidget *pi_label = gtk_label_new("piHPSDR by John Melton G0ORX/N6LYT");
+  #endif
   gtk_widget_set_name(pi_label, "big_txt");
   gtk_widget_set_halign(pi_label, GTK_ALIGN_START);
   t_print("add pi label to grid\n");

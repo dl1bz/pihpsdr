@@ -16,4 +16,7 @@
 *
 */
 
+#include <sys/utsname.h>
+extern struct utsname unameData;
+
 extern void about_menu(GtkWidget *parent);

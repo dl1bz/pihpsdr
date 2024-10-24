@@ -115,6 +115,9 @@ struct _mode_settings {
   double compressor_level;          // TX compressor level
   int dexp;                         // Downward Expander
   int cfc;                          // Continuous Frequency Compressor
+  int cfc_eq;
+  double lev_gain;                  // Leveler Gain
+  int    lev_enable;                // Leveler on/off
 };
 
 extern struct _mode_settings mode_settings[];

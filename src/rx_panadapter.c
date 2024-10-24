@@ -567,12 +567,19 @@ void display_panadapter_messages(cairo_t *cr, int width, unsigned int fps) {
     // Are shown on display for 2 seconds
     //
     cairo_set_source_rgba(cr, COLOUR_ALARM);
+    #ifdef __APPLE__
+      cairo_set_font_size(cr, DISPLAY_FONT_SIZE4);
+    #else
     cairo_set_font_size(cr, DISPLAY_FONT_SIZE2);
-
+    #endif
     if (sequence_errors != 0) {
       static unsigned int sequence_error_count = 0;
       cairo_move_to(cr, 100.0, 50.0);
+      #ifdef __APPLE__
+      cairo_show_text(cr, "UDP Sequence Error");
+      #else
       cairo_show_text(cr, "Sequence Error");
+      #endif
       sequence_error_count++;
 
       if (sequence_error_count == 2 * fps) {
@@ -586,7 +593,11 @@ void display_panadapter_messages(cairo_t *cr, int width, unsigned int fps) {
       cairo_move_to(cr, 100.0, 70.0);
 
       if (adc0_overload && !adc1_overload) {
+        #ifdef __APPLE__
+        cairo_show_text(cr, "ADC0 overload » Decrease RF !");
+        #else
         cairo_show_text(cr, "ADC0 overload");
+        #endif        
       }
 
       if (adc1_overload && !adc0_overload) {

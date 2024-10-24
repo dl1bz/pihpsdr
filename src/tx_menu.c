@@ -71,7 +71,8 @@ enum _tx_choices {
   TX_PAN_STEP,
   TX_AM_CARRIER,
   TX_TUNE_DRIVE,
-  TX_DIGI_DRIVE,
+  TX_LEVELER_GAIN,
+  TX_LEVELER_ENABLE,
   TX_SWR_ALARM,
   TX_DISPLAY_FILLED,
   TX_COMP_ENABLE,
@@ -215,13 +216,19 @@ static void spinbtn_cb(GtkWidget *widget, gpointer data) {
       transmitter->tune_drive = vi;
       break;
 
-    case TX_DIGI_DRIVE:
+    /* case TX_DIGI_DRIVE:
       drive_digi_max = v;
 
       if ((mode == modeDIGL || mode == modeDIGU) && transmitter->drive > v + 0.5) {
         set_drive(v);
       }
-
+    */
+    case TX_LEVELER_GAIN:
+      transmitter->lev_gain = v;
+      mode_settings[mode].lev_gain = v;
+      copy_mode_settings(mode);
+      tx_set_compressor(transmitter);
+      g_idle_add(ext_vfo_update, NULL);
       break;
 
     case TX_SWR_ALARM:
@@ -310,6 +317,14 @@ static void chkbtn_cb(GtkWidget *widget, gpointer data) {
       g_idle_add(ext_vfo_update, NULL);
       break;
 
+    case TX_LEVELER_ENABLE:
+      transmitter->lev_enable = v;
+      mode_settings[mode].lev_enable = transmitter->lev_enable;
+      copy_mode_settings(mode);
+      tx_set_compressor(transmitter);
+      g_idle_add(ext_vfo_update, NULL);
+      break;
+
     case TX_CTCSS_ENABLE:
       transmitter->ctcss_enabled = v;
       tx_set_ctcss(transmitter);
@@ -372,6 +387,9 @@ static void chkbtn_cb(GtkWidget *widget, gpointer data) {
 
     case CFC_EQ:
       transmitter->cfc_eq = v;
+      mode_settings[mode].cfc_eq = v;
+      copy_mode_settings(mode);
+      g_idle_add(ext_vfo_update, NULL);
       break;
     }
 
@@ -743,15 +761,17 @@ void tx_menu(GtkWidget *parent) {
   gtk_grid_attach(GTK_GRID(tx_grid), btn, col, row, 1, 1);
   g_signal_connect(btn, "toggled", G_CALLBACK(chkbtn_cb), GINT_TO_POINTER(TX_DISPLAY_FILLED));
   col++;
-  label = gtk_label_new("Max Digi Drv");
-  gtk_widget_set_name(label, "boldlabel");
-  gtk_widget_set_halign(label, GTK_ALIGN_END);
-  gtk_grid_attach(GTK_GRID(tx_grid), label, col, row, 1, 1);
-  col++;
-  btn = gtk_spin_button_new_with_range(1.0, drive_max, 1.0);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON(btn), drive_digi_max);
+  btn = gtk_check_button_new_with_label("Leveler");
+  gtk_widget_set_name(btn, "boldlabel");
+  gtk_widget_set_halign(btn, GTK_ALIGN_END);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (btn), transmitter->lev_enable);
   gtk_grid_attach(GTK_GRID(tx_grid), btn, col, row, 1, 1);
-  g_signal_connect(btn, "value-changed", G_CALLBACK(spinbtn_cb), GINT_TO_POINTER(TX_DIGI_DRIVE));
+  g_signal_connect(btn, "toggled", G_CALLBACK(chkbtn_cb), GINT_TO_POINTER(TX_LEVELER_ENABLE));
+  col++;
+  btn = gtk_spin_button_new_with_range(0.0, 15.0, 1.0);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(btn), (double)transmitter->lev_gain);
+  gtk_grid_attach(GTK_GRID(tx_grid), btn, col++, row, 1, 1);
+  g_signal_connect(btn, "value-changed", G_CALLBACK(spinbtn_cb), GINT_TO_POINTER(TX_LEVELER_GAIN));
   //
   // CFC container and controls therein
   //

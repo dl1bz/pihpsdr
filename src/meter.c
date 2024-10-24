@@ -36,6 +36,33 @@
 #include "vfo.h"
 #include "message.h"
 
+//----------------------------------------------------------------------------------------------
+#define NUM_SWERTE 16   /* Number of S-Werte */
+
+// lower limits
+static short int lowlimits[NUM_SWERTE] = {
+  -200,-121,-115,-109,-103,-97,-91,-85,-79,-73,-63,-53,-43,-33,-23,-13
+};
+// upper limits
+static short int uplimits[NUM_SWERTE] = {
+  -122,-116,-110,-104,-98,-92,-86,-80,-74,-64,-54,-44,-34,-24,-14,100
+};
+
+const char* (dbm2smeter[NUM_SWERTE + 1]) = {
+    "no signal","S1","S2","S3","S4","S5","S6","S7","S8","S9","S9+10db","S9+20db","S9+30db","S9+40db","S9+50db","S9+60db","out of range"
+};
+
+unsigned char get_SWert(short int dbm) {
+    int i;
+    for (i = 0; i < NUM_SWERTE; i++) {
+        if ((dbm >= lowlimits[i]) && (dbm <= uplimits[i])) {
+           return i;
+        }
+    }
+    return NUM_SWERTE; // no valid S-Werte -> return not defined
+}
+//----------------------------------------------------------------------------------------------
+
 static GtkWidget *meter;
 static cairo_surface_t *meter_surface = NULL;
 
@@ -556,7 +583,7 @@ void meter_update(RECEIVER *rx, int meter_type, double value, double alc, double
         cairo_set_line_width(cr, PAN_LINE_THICK);
         cairo_set_source_rgba(cr, COLOUR_METER);
 
-        for (i = 0; i < 54; i++) {
+        for (i = 0; i < 55; i++) {
           cairo_move_to(cr, 5 + i, Y4 - 10);
 
           if (i % 18 == 0) {
@@ -572,9 +599,12 @@ void meter_update(RECEIVER *rx, int meter_type, double value, double alc, double
         cairo_show_text(cr, "3");
         cairo_move_to(cr, 38, Y4);
         cairo_show_text(cr, "6");
-        cairo_set_source_rgba(cr, COLOUR_ALARM);
-        cairo_move_to(cr, 5 + 54, Y4 - 10);
-        cairo_line_to(cr, 5 + 54, Y4 - 20);
+        cairo_move_to(cr, 56, Y4);
+        cairo_show_text(cr, "9");
+        // cairo_set_source_rgba(cr, COLOUR_ALARM);
+        cairo_set_source_rgba(cr, COLOUR_ORANGE);
+        // cairo_move_to(cr, 5 + 54, Y4 - 10);
+        // cairo_line_to(cr, 5 + 54, Y4 - 20);
         cairo_move_to(cr, 5 + 74, Y4 - 10);
         cairo_line_to(cr, 5 + 74, Y4 - 20);
         cairo_move_to(cr, 5 + 94, Y4 - 10);
@@ -582,8 +612,8 @@ void meter_update(RECEIVER *rx, int meter_type, double value, double alc, double
         cairo_move_to(cr, 5 + 114, Y4 - 10);
         cairo_line_to(cr, 5 + 114, Y4 - 20);
         cairo_stroke(cr);
-        cairo_move_to(cr, 56, Y4);
-        cairo_show_text(cr, "9");
+        // cairo_move_to(cr, 56, Y4);
+        // cairo_show_text(cr, "9");
         cairo_move_to(cr, 5 + 74 - 12, Y4);
         cairo_show_text(cr, "+20");
         cairo_move_to(cr, 5 + 94 - 9, Y4);
@@ -616,14 +646,16 @@ void meter_update(RECEIVER *rx, int meter_type, double value, double alc, double
         cairo_pattern_add_color_stop_rgba(pat, 0.50, COLOUR_GRAD4);
         cairo_pattern_add_color_stop_rgba(pat, 1.00, COLOUR_GRAD4);
         cairo_set_source(cr, pat);
-        cairo_rectangle(cr, 5, Y2 - 20, l, 20.0);
+        // cairo_rectangle(cr, 5, Y2 - 20, l, 20.0);
+        cairo_rectangle(cr, 5, Y2 - 20, l, 30.0); // add by DL1BZ
         cairo_fill(cr);
         cairo_pattern_destroy(pat);
         //
         // Mark right edge of S-meter bar with a line in ATTN colour
         //
         cairo_set_source_rgba(cr, COLOUR_ATTN);
-        cairo_move_to(cr, 5 + l, (double)Y2);
+        // cairo_move_to(cr, 5 + l, (double)Y2);
+        cairo_move_to(cr, 5 + l, (double)Y2 + 15); // add by DL1BZ
         cairo_line_to(cr, 5 + l, (double)(Y2 - 20));
         cairo_stroke(cr);
         text_location = 124;
@@ -637,10 +669,15 @@ void meter_update(RECEIVER *rx, int meter_type, double value, double alc, double
 
       if (size > METER_HEIGHT / 3) { size = METER_HEIGHT / 3; }
 
-      cairo_set_source_rgba(cr, COLOUR_ATTN);
-      cairo_set_font_size(cr, size);
+      // cairo_set_source_rgba(cr, COLOUR_ATTN);
+      cairo_set_source_rgba(cr, COLOUR_ORANGE);
+      cairo_set_font_size(cr, size - 4);
+      // snprintf(sf, 32, "%d dBm", (int)(max_rxlvl - 0.5));  // assume max_rxlvl < 0 in rounding
+      snprintf(sf, 32, "%s", dbm2smeter[get_SWert((int)(max_rxlvl - 0.5))]); // assume max_rxlvl < 0 in roundig
+      cairo_move_to(cr, text_location + 10, Y2 - 6);
+      cairo_show_text(cr, sf);
       snprintf(sf, 32, "%d dBm", (int)(max_rxlvl - 0.5));  // assume max_rxlvl < 0 in rounding
-      cairo_move_to(cr, text_location, Y2);
+      cairo_move_to(cr, text_location + 5, Y2 + 15);
       cairo_show_text(cr, sf);
       break;
 

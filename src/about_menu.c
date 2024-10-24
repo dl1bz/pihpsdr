@@ -33,6 +33,8 @@
 #include "version.h"
 #include "mystring.h"
 
+struct utsname unameData;
+
 static GtkWidget *dialog = NULL;
 static GtkWidget *label;
 
@@ -58,6 +60,7 @@ void about_menu(GtkWidget *parent) {
   dialog = gtk_dialog_new();
   gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(parent));
   char title[64];
+  uname(&unameData);
   snprintf(title, 64, "piHPSDR - About");
   GtkWidget *headerbar = gtk_header_bar_new();
   gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbar);
@@ -75,17 +78,19 @@ void about_menu(GtkWidget *parent) {
   g_signal_connect (close_b, "button-press-event", G_CALLBACK(close_cb), NULL);
   gtk_grid_attach(GTK_GRID(grid), close_b, 0, row, 1, 1);
   row++;
-  snprintf(text, 1024, "piHPSDR by John Melton G0ORX/N6LYT\n\n"
+  snprintf(text, 1024, "piHPSDR origin by John Melton G0ORX/N6LYT\n\n"
            "    With help from:\n"
            "    Steve Wilson, KA6S: RIGCTL (CAT over TCP)\n"
            "    Laurence Barker, G8NJJ: USB OZY Support\n"
            //"    Johan Maas, PA3GSB: RadioBerry support\n"
            "    Ken Hopper, N9VV: Testing and Documentation\n"
-           "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI \n\n"
+           "    Christoph van Wüllen, DL1YCF: CW, PureSignal, Diversity, MIDI, CFC, DEXP  \n"
+           "    Heiko Amft, DL1BZ: Improvements macOS\n\n"
+           "Build system: %s %s @ %s\n"
            "Build date: %s (commit %s)\n"
            "Build version: %s\n"
            "WDSP version: %d.%02d\n\n",
-           build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
+           unameData.sysname, unameData.release, unameData.machine, build_date, build_commit, build_version, GetWDSPVersion() / 100, GetWDSPVersion() % 100);
 
   switch (radio->protocol) {
   case ORIGINAL_PROTOCOL:

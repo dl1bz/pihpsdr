@@ -137,7 +137,10 @@ static void modesettingsSaveState() {
     SetPropF1("modeset.%d.compressor_level", i,      mode_settings[i].compressor_level);
     SetPropI1("modeset.%d.compressor", i,            mode_settings[i].compressor);
     SetPropI1("modeset.%d.cfc", i,                   mode_settings[i].cfc);
+    SetPropI1("modeset.%d.cfc_eq", i,                mode_settings[i].cfc_eq);
     SetPropI1("modeset.%d.dexp", i,                  mode_settings[i].dexp);
+    SetPropI1("modeset.%d.lev_enable", i,            mode_settings[i].lev_enable);
+    SetPropF1("modeset.%d.lev_gain", i,              mode_settings[i].lev_gain);
 
     for (int j = 0; j < 11; j++) {
       SetPropF2("modeset.%d.txeq.%d", i, j,          mode_settings[i].tx_eq_gain[j]);
@@ -220,11 +223,11 @@ static void modesettingsRestoreState() {
 
     mode_settings[i].tx_eq_freq[0]  =     0.0;
     mode_settings[i].rx_eq_freq[0]  =     0.0;
-    mode_settings[i].tx_eq_freq[1]  =    50.0;
+    mode_settings[i].tx_eq_freq[1]  =    70.0;
     mode_settings[i].rx_eq_freq[1]  =    50.0;
-    mode_settings[i].tx_eq_freq[2]  =   100.0;
+    mode_settings[i].tx_eq_freq[2]  =   150.0;
     mode_settings[i].rx_eq_freq[2]  =   100.0;
-    mode_settings[i].tx_eq_freq[3]  =   200.0;
+    mode_settings[i].tx_eq_freq[3]  =   300.0;
     mode_settings[i].rx_eq_freq[3]  =   200.0;
     mode_settings[i].tx_eq_freq[4]  =   500.0;
     mode_settings[i].rx_eq_freq[4]  =   500.0;
@@ -238,12 +241,15 @@ static void modesettingsRestoreState() {
     mode_settings[i].rx_eq_freq[8]  =  2500.0;
     mode_settings[i].tx_eq_freq[9]  =  3000.0;
     mode_settings[i].rx_eq_freq[9]  =  3000.0;
-    mode_settings[i].tx_eq_freq[10] =  5000.0;
+    mode_settings[i].tx_eq_freq[10] =  3500.0;
     mode_settings[i].rx_eq_freq[10] =  5000.0;
     mode_settings[i].cfc = 0;
+    mode_settings[i].cfc_eq = 0;
+    mode_settings[i].lev_gain = 0.0;
+    mode_settings[i].lev_enable = 0;
     mode_settings[i].dexp = 0;
     mode_settings[i].compressor = 0;
-    mode_settings[i].compressor_level = 0.0;
+    mode_settings[i].compressor_level = 4.0;
     GetPropI1("modeset.%d.filter", i,                mode_settings[i].filter);
     GetPropI1("modeset.%d.cwPeak", i,                mode_settings[i].cwPeak);
     GetPropI1("modeset.%d.nr", i,                    mode_settings[i].nr);
@@ -274,7 +280,10 @@ static void modesettingsRestoreState() {
     GetPropF1("modeset.%d.compressor_level", i,      mode_settings[i].compressor_level);
     GetPropI1("modeset.%d.compressor", i,            mode_settings[i].compressor);
     GetPropI1("modeset.%d.cfc", i,                   mode_settings[i].cfc);
+    GetPropI1("modeset.%d.cfc_eq", i,                mode_settings[i].cfc_eq);
     GetPropI1("modeset.%d.dexp", i,                  mode_settings[i].dexp);
+    GetPropI1("modeset.%d.lev_enable", i,            mode_settings[i].lev_enable);
+    GetPropF1("modeset.%d.lev_gain", i,              mode_settings[i].lev_gain);
 
     for (int j = 0; j < 11; j++) {
       GetPropF2("modeset.%d.txeq.%d", i, j,          mode_settings[i].tx_eq_gain[j]);
@@ -538,6 +547,9 @@ void vfo_apply_mode_settings(RECEIVER *rx) {
     transmitter->compressor = mode_settings[m].compressor;
     transmitter->compressor_level = mode_settings[m].compressor_level;
     transmitter->cfc = mode_settings[m].cfc;
+    transmitter->cfc_eq = mode_settings[m].cfc_eq;
+    transmitter->lev_enable = mode_settings[m].lev_enable;
+    transmitter->lev_gain = mode_settings[m].lev_gain;
     tx_set_compressor      (transmitter);
     transmitter->dexp = mode_settings[m].dexp;
     tx_set_dexp(transmitter);
@@ -1216,11 +1228,21 @@ void vfo_id_move_to(int id, long long hz) {
 
 // cppcheck-suppress constParameterCallback
 static gboolean vfo_scroll_event_cb (GtkWidget *widget, GdkEventScroll *event, gpointer data) {
+  #ifdef __APPLE__
+  if (event->state) {
   if (event->direction == GDK_SCROLL_UP) {
     vfo_step(1);
   } else {
     vfo_step(-1);
   }
+  }
+  #else
+    if (event->direction == GDK_SCROLL_UP) {
+      vfo_step(1);
+    } else {
+      vfo_step(-1);
+    }
+  #endif
 
   return FALSE;
 }
@@ -1572,7 +1594,8 @@ void vfo_update() {
   //
   // Everything that follows uses font size 1
   //
-  cairo_set_font_size(cr, vfl->size1);
+  // cairo_set_font_size(cr, vfl->size1);
+  cairo_set_font_size(cr, 14.0);
 
   // -----------------------------------------------------------
   //
@@ -1755,7 +1778,7 @@ void vfo_update() {
       cairo_set_source_rgba(cr, COLOUR_SHADE);
     }
 
-    cairo_show_text(cr, "DExp");
+    cairo_show_text(cr, "DEXP");
   }
 
   // -----------------------------------------------------------
@@ -1803,22 +1826,26 @@ void vfo_update() {
     cairo_move_to(cr, vfl->cmpr_x, vfl->cmpr_y);
 
     if (transmitter->cfc && transmitter->compressor) {
-      snprintf(temp_text, 32, "CprCfc");
+      // snprintf(temp_text, 32, "CprCfc");
+      snprintf(temp_text, 32, "PROC %d CFC", (int) transmitter->compressor_level);
       cairo_set_source_rgba(cr, COLOUR_ATTN);
     }
 
     if (transmitter->cfc && !transmitter->compressor) {
-      snprintf(temp_text, 32, "CFC on");
+      // snprintf(temp_text, 32, "CFC on");
+      snprintf(temp_text, 32, "CFC");
       cairo_set_source_rgba(cr, COLOUR_ATTN);
     }
 
     if (!transmitter->cfc && transmitter->compressor) {
-      snprintf(temp_text, 32, "Cmpr %d", (int) transmitter->compressor_level);
+      // snprintf(temp_text, 32, "Cmpr %d", (int) transmitter->compressor_level);
+      snprintf(temp_text, 32, "PROC %d", (int) transmitter->compressor_level);
       cairo_set_source_rgba(cr, COLOUR_ATTN);
     }
 
     if (!transmitter->cfc && !transmitter->compressor) {
-      snprintf(temp_text, 32, "Cmpr");
+      // snprintf(temp_text, 32, "Cmpr");
+      snprintf(temp_text, 32, "PROC");
       cairo_set_source_rgba(cr, COLOUR_SHADE);
     }
 
