@@ -2159,7 +2159,7 @@ void tx_set_compressor(TRANSMITTER *tx) {
   // SetTXACFCOMPRun(tx->id, tx->cfc);
   SetTXACFCOMPPeqRun(tx->id, tx->cfc_eq); // Post CFC on/off
 
-  t_print("%s: PROC & CESSB state: %d, PROC Gain %.1fdb, Leveler state: %d, Leveler Gain: %.1fdb\n", __FUNCTION__, tx->compressor, tx->compressor_level, tx->lev_enable, tx->lev_gain);
+  t_print("%s: pre CFC + Phase Rotator state: %d with Level %.1fdb, post CFC state: %d with Level %.1fdb\n", __FUNCTION__, tx->cfc, tx->cfc_lvl[0], tx->cfc_eq, tx->cfc_post[0]);
 
   // CESSB overshoot control used only with COMP
   // SetTXAosctrlRun(tx->id, tx->compressor);
