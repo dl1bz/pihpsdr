@@ -822,6 +822,7 @@ endif
 		$(SOAPYSDR_OBJS) $(MIDI_OBJS) $(STEMLAB_OBJS) $(SERVER_OBJS) $(SATURN_OBJS) \
 		$(LIBS) $(LDFLAGS)
 	@rm -rf pihpsdr.app
+	@rm -rf ${HOME}/Desktop/pihpsdr.app
 	@mkdir -p pihpsdr.app/Contents/MacOS
 	@mkdir -p pihpsdr.app/Contents/Frameworks
 	@mkdir -p pihpsdr.app/Contents/Resources
@@ -830,6 +831,8 @@ endif
 	@cp MacOS/Info.plist pihpsdr.app/Contents
 	@cp MacOS/hpsdr.icns pihpsdr.app/Contents/Resources/hpsdr.icns
 	@cp MacOS/hpsdr.png pihpsdr.app/Contents/Resources
+	@mv pihpsdr.app ${HOME}/Desktop
+	@open -a ${HOME}/Desktop/pihpsdr.app
 
 #############################################################################
 #
