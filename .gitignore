@@ -4,7 +4,10 @@ GNUmakefile
 *.toc
 *.o
 *.diff
+*.rej
 *.orig
+*.bak
+*.patch
 pihpsdr
 pihpsdr.app
 hpsdrsim
